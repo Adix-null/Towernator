@@ -60,25 +60,16 @@ namespace GameObjects
 	class TowerSpot : public Tile {};
 	class EnemyPath : public Tile {};
 
-	struct RoundEnemyData
+	struct WaveEnemyData
 	{
 		int enemyCount;
 		GameObjects::Enemy type;
 		float instanceDelay;
-		int startDelay;
+		int startWaveDelay;
 	};
 
 	enum class Difficulty { HARD, MEDIUM, EASY, INFINITE };
-	enum class GameState { MENU, GAME, GAME_OVER };
-
-	extern float EnemyToughnessMultiplierFunction(int roundNumber);
-	constexpr float levelDifficultyMultiplier = 1.5f;
-	constexpr int startingGold = 500;
-	constexpr int factoryHealth = 200;
-
-	extern std::vector<RoundEnemyData> enemyRounds;
-	constexpr int PauseBetweenRounds = 15;
-
+	enum class GameState { MENU, ROUND, GAME_OVER };
 
 	class Game
 	{
@@ -91,16 +82,23 @@ namespace GameObjects
 			static Game instance;
 			return instance;
 		}
+		Game(const Game&) = delete;
+		void operator=(const Game&) = delete;
 
-		int roundNumber = 0;
-		int gold = GameObjects::startingGold;
-		int centralFactoryHealth = GameObjects::factoryHealth;
+		float enemyToughnessMultiplierFunction(int roundNumber);
+		float levelDifficultyMultiplier = 1.0;
+
+		//Enemy wave info data
+		std::vector<std::vector<WaveEnemyData>> enemyRounds;
+		int startRoundDelay = 0;
+
+		//Dynamic data
+		int roundNumber = 1;
+		int gold = 0;
+		int centralFactoryHealth = 0;
 
 		std::vector<std::unique_ptr<Tower>> towers;
 		std::vector<std::unique_ptr<Enemy>> enemies;
-
-		Game(const Game&) = delete;
-		void operator=(const Game&) = delete;
 
 		void togglePause(bool gamePaused);
 		void initialize(GameObjects::Difficulty dif);

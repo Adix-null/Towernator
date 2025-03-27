@@ -7,26 +7,49 @@
 
 namespace GameObjects
 {
-	float GameObjects::EnemyToughnessMultiplierFunction(int roundNumber)
+	float Game::enemyToughnessMultiplierFunction(int roundNumber)
 	{
 		return std::max(log(roundNumber) / log(5), 1.0);
 	}
-	void GameObjects::Game::togglePause(bool gamePaused)
+	void Game::togglePause(bool gamePaused)
 	{
 
 	}
 
-	void GameObjects::Game::initialize(GameObjects::Difficulty dif)
+	void Game::initialize(Difficulty dif)
+	{
+		switch (dif)
+		{
+		case Difficulty::EASY:
+		{
+			this->gold = 1000;
+			this->centralFactoryHealth = 300;
+			this->startRoundDelay = 10;
+			break;
+		}
+		case Difficulty::MEDIUM:
+		{
+			this->gold = 500;
+			this->centralFactoryHealth = 200;
+			this->startRoundDelay = 7;
+			break;
+		};
+		case Difficulty::HARD:
+		{
+			this->gold = 200;
+			this->centralFactoryHealth = 150;
+			this->startRoundDelay = 4;
+			break;
+		};
+		}
+	}
+
+	void Game::run()
 	{
 
 	}
 
-	void GameObjects::Game::run()
-	{
-
-	}
-
-	void GameObjects::Game::end()
+	void Game::end()
 	{
 
 	}
