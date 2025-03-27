@@ -1,29 +1,34 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
+#include "GameObjects.hpp"
 
 int main()
 {
-    sf::RenderWindow *window = new sf::RenderWindow(sf::VideoMode(sf::Vector2u(700, 700)), "Testing");
+	sf::RenderWindow* window = new sf::RenderWindow(sf::VideoMode(sf::Vector2u(700, 700)), "Testing");
 
-    while (window->isOpen())
-    {
-        while (const std::optional event = window->pollEvent())
-        {
-            if (event->is<sf::Event::Closed>()) 
-            {
-                window->close();
-            }
-        }
+	GameObjects::Game& game = GameObjects::Game::getInstance();
+	while (window->isOpen())
+	{
+		while (const std::optional event = window->pollEvent())
+		{
+			if (event->is<sf::Event::Closed>())
+			{
+				window->close();
+			}
+		}
 
-        //render 
+		//main loop will go here
+		//should primarily be used for high level function calls
 
-        window->clear();
+		//render 
 
-        //draw stuff
+		window->clear();
 
-        window->display();
-    }
+		//draw stuff
 
-    delete window;
-    return 0;
+		window->display();
+	}
+
+	delete window;
+	return 0;
 }
