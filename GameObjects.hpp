@@ -14,6 +14,11 @@
 
 namespace GameObjects
 {
+	enum class TowerType { FAST, SPLASH, LASER };
+	enum class EnemyType { RUNNER, NORMAL, TANK, BOSS };
+	enum class Difficulty { HARD, MEDIUM, EASY, INFINITE };
+	enum class GameState { MENU, ROUND, GAME_OVER };
+
 	class Enemy
 	{
 	public:
@@ -31,6 +36,12 @@ namespace GameObjects
 	class Tank : public Enemy {};
 	class Boss : public Enemy {};
 
+	class EnemyFactory
+	{
+	public:
+		static std::unique_ptr<Enemy> createEnemy(const EnemyType& type);
+	};
+
 	class Tower
 	{
 	public:
@@ -42,6 +53,13 @@ namespace GameObjects
 
 		virtual ~Tower() = default;
 	};
+
+	class TowerFactory
+	{
+	public:
+		static std::unique_ptr<Tower> createTower(const TowerType& type);
+	};
+
 
 	class Fast : public Tower {};
 	class Splash : public Tower {};
@@ -67,9 +85,6 @@ namespace GameObjects
 		float instanceDelay;
 		int startWaveDelay;
 	};
-
-	enum class Difficulty { HARD, MEDIUM, EASY, INFINITE };
-	enum class GameState { MENU, ROUND, GAME_OVER };
 
 	class Game
 	{
@@ -99,6 +114,9 @@ namespace GameObjects
 
 		std::vector<std::unique_ptr<Tower>> towers;
 		std::vector<std::unique_ptr<Enemy>> enemies;
+
+		void spawnEnemy(EnemyType type);
+		void spawnTower(TowerType type);
 
 		void togglePause(bool gamePaused);
 		void initialize(GameObjects::Difficulty dif);
