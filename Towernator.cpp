@@ -17,11 +17,16 @@ int main()
 
 	GameObjects::Game& game = GameObjects::Game::getInstance();
 
-	game.initialize(GameObjects::Difficulty::MEDIUM);
+	game.initialize(/*GameObjects::Difficulty::EASY*/);
 
 	sf::Clock deltaClock;
+	sf::Clock masterClock;
+
+	deltaClock.start();
+	masterClock.start();
 	while (window.isOpen())
 	{
+		float deltaTime = deltaClock.restart().asSeconds();
 		const sf::Event UIevent();
 		while (const std::optional event = window.pollEvent())
 		{
@@ -31,6 +36,10 @@ int main()
 				window.close();
 			}
 		}
+
+		game.update(deltaTime, masterClock.getElapsedTime().asSeconds());
+
+
 		ImGui::SFML::Update(window, deltaClock.restart());
 
 		ImGui::Begin("Window title");

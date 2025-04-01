@@ -9,7 +9,8 @@ namespace GameObjects
 {
 	std::unique_ptr<Enemy> EnemyFactory::createEnemy(const EnemyType& type)
 	{
-		if (type == EnemyType::RUNNER) return std::make_unique<Runner>();
+		//TODO: file loading
+		if (type == EnemyType::RUNNER) return std::make_unique<Runner>(50, 30, 10, 40, new std::string("ff0000"));
 		if (type == EnemyType::NORMAL) return std::make_unique<Normal>();
 		if (type == EnemyType::TANK) return std::make_unique<Tank>();
 		if (type == EnemyType::BOSS) return std::make_unique<Boss>();
@@ -33,15 +34,36 @@ namespace GameObjects
 
 	}
 
-	void Game::initialize(Difficulty dif)
+	void Game::initialize(/*Difficulty dif*/)
 	{
-		switch (dif)
+		this->waves.resize(3);
+
+		// Wave 1
+		this->waves[0].push_back({ 5, EnemyType::RUNNER, 0.66f, 0 });
+		this->waves[0].push_back({ 5, EnemyType::NORMAL, 1.0f, 3 });
+
+		// Wave 2
+		this->waves[1].push_back({ 4, EnemyType::TANK, 2.0f, 5 });
+		this->waves[1].push_back({ 6, EnemyType::NORMAL, 0.4f, 5 });
+
+		// Wave 3
+		this->waves[2].push_back({ 3, EnemyType::BOSS, 3.0f, 10 });
+		this->waves[2].push_back({ 7, EnemyType::RUNNER, 0.3f, 10 });
+
+		this->gold = 1000;
+		this->centralFactoryHealth = 300;
+		this->startRoundDelay = 10;
+
+		//difficulty will be handled later
+		/*switch (dif)
 		{
 		case Difficulty::EASY:
 		{
 			this->gold = 1000;
 			this->centralFactoryHealth = 300;
 			this->startRoundDelay = 10;
+
+
 			break;
 		}
 		case Difficulty::MEDIUM:
@@ -49,6 +71,8 @@ namespace GameObjects
 			this->gold = 500;
 			this->centralFactoryHealth = 200;
 			this->startRoundDelay = 7;
+
+
 			break;
 		};
 		case Difficulty::HARD:
@@ -56,9 +80,20 @@ namespace GameObjects
 			this->gold = 200;
 			this->centralFactoryHealth = 150;
 			this->startRoundDelay = 4;
+
+
 			break;
 		};
-		}
+		case Difficulty::INFINTE:
+		{
+			this->gold = 300;
+			this->centralFactoryHealth = 300;
+			this->startRoundDelay = 5;
+
+
+			break;
+		};
+		}*/
 	}
 
 	void Game::spawnEnemy(EnemyType type)
@@ -78,8 +113,31 @@ namespace GameObjects
 		}
 	}
 
-	void Game::run()
+	//majority of logic goes here
+	void Game::update(float deltaTime, float elapsedTime)
 	{
+		//TODO: enemy spawning according to elapsed time with Game::spawnEnemy and waves
+
+		//tower handling
+		for (const auto& tower : towers)
+		{
+
+		}
+
+		for (const auto& enemy : enemies)
+		{
+			enemy->progressInPath += enemy->speed * deltaTime;
+
+			if (enemy->progressInPath >= 1.0f)
+				this->centralFactoryHealth -= enemy->damage;
+
+			//TODO: render enemy sprites
+		}
+
+		if (this->centralFactoryHealth == 0)
+			Game::end();
+
+
 
 	}
 
