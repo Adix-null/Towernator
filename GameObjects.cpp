@@ -36,24 +36,6 @@ namespace GameObjects
 
 	void Game::initialize(/*Difficulty dif*/)
 	{
-		this->waves.resize(3);
-
-		// Wave 1
-		this->waves[0].push_back({ 5, EnemyType::RUNNER, 0.66f, 0 });
-		this->waves[0].push_back({ 5, EnemyType::NORMAL, 1.0f, 3 });
-
-		// Wave 2
-		this->waves[1].push_back({ 4, EnemyType::TANK, 2.0f, 5 });
-		this->waves[1].push_back({ 6, EnemyType::NORMAL, 0.4f, 5 });
-
-		// Wave 3
-		this->waves[2].push_back({ 3, EnemyType::BOSS, 3.0f, 10 });
-		this->waves[2].push_back({ 7, EnemyType::RUNNER, 0.3f, 10 });
-
-		this->gold = 1000;
-		this->centralFactoryHealth = 300;
-		this->startRoundDelay = 10;
-
 		//difficulty will be handled later
 		/*switch (dif)
 		{
@@ -96,6 +78,27 @@ namespace GameObjects
 		}*/
 	}
 
+	void Game::loadWaveDataFromFile()
+	{
+		this->waves.resize(3);
+
+		// Wave 1
+		this->waves[0].push_back({ 5, EnemyType::RUNNER, 0.66f, 0 });
+		this->waves[0].push_back({ 5, EnemyType::NORMAL, 1.0f, 3 });
+
+		// Wave 2
+		this->waves[1].push_back({ 4, EnemyType::TANK, 2.0f, 5 });
+		this->waves[1].push_back({ 6, EnemyType::NORMAL, 0.4f, 5 });
+
+		// Wave 3
+		this->waves[2].push_back({ 3, EnemyType::BOSS, 3.0f, 10 });
+		this->waves[2].push_back({ 7, EnemyType::RUNNER, 0.3f, 10 });
+
+		this->gold = 1000;
+		this->centralFactoryHealth = 300;
+		this->startRoundDelay = 10;
+	}
+
 	void Game::spawnEnemy(EnemyType type)
 	{
 		auto enemy = EnemyFactory::createEnemy(type);
@@ -113,32 +116,32 @@ namespace GameObjects
 		}
 	}
 
-	//majority of logic goes here
-	void Game::update(float deltaTime, float elapsedTime)
+	void Game::update()
 	{
-		//TODO: enemy spawning according to elapsed time with Game::spawnEnemy and waves
+		processEnemyData();
+		processTowerData();
 
-		//tower handling
+		if (this->centralFactoryHealth == 0)
+			Game::end();
+	}
+
+	void Game::processEnemyData()
+	{
+		for (const auto& enemy : this->enemies)
+		{
+			enemy->progressInPath += enemy->speed * this->deltaTime;
+
+			if (enemy->progressInPath >= 1.0f)
+				this->centralFactoryHealth -= enemy->damage;
+		}
+	}
+
+	void Game::processTowerData()
+	{
 		for (const auto& tower : towers)
 		{
 
 		}
-
-		for (const auto& enemy : enemies)
-		{
-			enemy->progressInPath += enemy->speed * deltaTime;
-
-			if (enemy->progressInPath >= 1.0f)
-				this->centralFactoryHealth -= enemy->damage;
-
-			//TODO: render enemy sprites
-		}
-
-		if (this->centralFactoryHealth == 0)
-			Game::end();
-
-
-
 	}
 
 	void Game::end()

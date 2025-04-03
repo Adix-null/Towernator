@@ -96,6 +96,11 @@ namespace GameObjects
 		float instanceDelay;
 		int startWaveDelay;
 	};
+	struct SpawnEvent
+	{
+		float spawnTime;  // Absolute time from game start to spawn enemy
+		GameObjects::EnemyType type;
+	};
 
 	class Game
 	{
@@ -126,14 +131,20 @@ namespace GameObjects
 
 		std::vector<std::unique_ptr<Tower>> towers;
 		std::vector<std::unique_ptr<Enemy>> enemies;
+		float deltaTime = 0;
+		float elapsedTime = 0;
 
 		void spawnEnemy(EnemyType type);
 		void spawnTower(TowerType type);
 
 		void togglePause(bool gamePaused);
 		void initialize(/*GameObjects::Difficulty dif*/);
-		void update(float deltaTime, float elapsedTime);
+		void update();
 		void end();
+
+		void loadWaveDataFromFile();
+		void processEnemyData();
+		void processTowerData();
 	};
 
 }

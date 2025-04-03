@@ -26,18 +26,20 @@ int main()
 	masterClock.start();
 	while (window.isOpen())
 	{
-		float deltaTime = deltaClock.restart().asSeconds();
 		const sf::Event UIevent();
 		while (const std::optional event = window.pollEvent())
 		{
 			ImGui::SFML::ProcessEvent(window, *event);
+			//Close window if X is clicked
 			if (event->is<sf::Event::Closed>())
 			{
 				window.close();
 			}
 		}
 
-		game.update(deltaTime, masterClock.getElapsedTime().asSeconds());
+		game.deltaTime = deltaClock.restart().asSeconds();
+		game.elapsedTime = masterClock.getElapsedTime().asSeconds();
+		game.update();
 
 
 		ImGui::SFML::Update(window, deltaClock.restart());
