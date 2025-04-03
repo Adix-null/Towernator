@@ -10,10 +10,10 @@ namespace GameObjects
 	std::unique_ptr<Enemy> EnemyFactory::createEnemy(const EnemyType& type)
 	{
 		//TODO: file loading
-		if (type == EnemyType::RUNNER) return std::make_unique<Runner>(50, 30, 10, 40, new std::string("ff0000"));
-		if (type == EnemyType::NORMAL) return std::make_unique<Normal>();
-		if (type == EnemyType::TANK) return std::make_unique<Tank>();
-		if (type == EnemyType::BOSS) return std::make_unique<Boss>();
+		if (type == EnemyType::RUNNER) return std::make_unique<Runner>(50, 30, 10, 40, std::string("ff0000"));
+		if (type == EnemyType::NORMAL) return std::make_unique<Walker>(50, 30, 10, 40, std::string("ff0000"));
+		if (type == EnemyType::TANK) return std::make_unique<Tank>(50, 30, 10, 40, std::string("ff0000"));
+		if (type == EnemyType::BOSS) return std::make_unique<Boss>(50, 30, 10, 40, std::string("ff0000"));
 		return nullptr;
 	}
 
@@ -78,6 +78,7 @@ namespace GameObjects
 		}*/
 	}
 
+	//hardcoded for now
 	void Game::loadWaveDataFromFile()
 	{
 		this->waves.resize(3);
@@ -99,12 +100,29 @@ namespace GameObjects
 		this->startRoundDelay = 10;
 	}
 
+	void Game::loadWaveData(int waveNum)
+	{
+		this->spawnQueue = {};
+		float currentTime = elapsedTime;
+
+		for (const auto& wave : this->waves[waveNum])
+		{
+			float waveStartTime = currentTime + wave.startWaveDelay;
+
+			for (int i = 0; i < wave.enemyCount; ++i)
+			{
+				this->spawnQueue.push({ waveStartTime + i * wave.instanceDelay, wave.type });
+			}
+		}
+	}
+
 	void Game::spawnEnemy(EnemyType type)
 	{
 		auto enemy = EnemyFactory::createEnemy(type);
 		if (enemy)
 		{
 			this->enemies.push_back(std::move(enemy));
+			std::cout << "Spawned " << static_cast<int>(type) << " enemy\n";
 		}
 	}
 	void Game::spawnTower(TowerType type)
@@ -120,6 +138,17 @@ namespace GameObjects
 	{
 		processEnemyData();
 		processTowerData();
+
+		loadWaveDataFromFile();
+		loadWaveData(this->roundNumber);
+
+		while (!(this->spawnQueue.empty()) && this->spawnQueue.front().spawnTime <= elapsedTime)
+		{
+
+			SpawnEvent& event = this->spawnQueue.front();
+			spawnEnemy(event.type);
+			this->spawnQueue.pop();
+		}
 
 		if (this->centralFactoryHealth == 0)
 			Game::end();

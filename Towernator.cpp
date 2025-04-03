@@ -26,6 +26,7 @@ int main()
 	masterClock.start();
 	while (window.isOpen())
 	{
+		deltaClock.restart();
 		const sf::Event UIevent();
 		while (const std::optional event = window.pollEvent())
 		{
@@ -37,12 +38,12 @@ int main()
 			}
 		}
 
-		game.deltaTime = deltaClock.restart().asSeconds();
+		game.deltaTime = deltaClock.getElapsedTime().asSeconds();
 		game.elapsedTime = masterClock.getElapsedTime().asSeconds();
 		game.update();
 
-
-		ImGui::SFML::Update(window, deltaClock.restart());
+		//if (io.DeltaTime <= 0.0f) io.DeltaTime = 0.00001f;
+		ImGui::SFML::Update(window, deltaClock.getElapsedTime());
 
 		ImGui::Begin("Window title");
 		ImGui::Text("Window text");

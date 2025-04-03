@@ -11,6 +11,7 @@
 #include <vector>
 #include <unordered_map>
 #include <SFML/Graphics.hpp>
+#include <queue>
 
 namespace GameObjects
 {
@@ -36,16 +37,10 @@ namespace GameObjects
 		virtual ~Enemy() = default;
 	};
 
-	class Runner : public Enemy
-	{
-	public:
-		Runner(int hlt, int dmg, float spd, int rew, const std::string& c)
-			: Enemy(hlt, dmg, spd, rew, c) {
-		}
-	};
-	class Normal : public Enemy {};
-	class Tank : public Enemy {};
-	class Boss : public Enemy {};
+	class Runner : public Enemy { using Enemy::Enemy; };
+	class Walker : public Enemy { using Enemy::Enemy; };
+	class Tank : public Enemy { using Enemy::Enemy; };
+	class Boss : public Enemy { using Enemy::Enemy; };
 
 	class EnemyFactory
 	{
@@ -131,6 +126,7 @@ namespace GameObjects
 
 		std::vector<std::unique_ptr<Tower>> towers;
 		std::vector<std::unique_ptr<Enemy>> enemies;
+		std::queue<SpawnEvent> spawnQueue;
 		float deltaTime = 0;
 		float elapsedTime = 0;
 
@@ -143,6 +139,7 @@ namespace GameObjects
 		void end();
 
 		void loadWaveDataFromFile();
+		void loadWaveData(int waveNum);
 		void processEnemyData();
 		void processTowerData();
 	};
