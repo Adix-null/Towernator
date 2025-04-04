@@ -15,10 +15,23 @@
 
 namespace GameObjects
 {
-	enum class TowerType { FAST, SPLASH, LASER };
-	enum class EnemyType { RUNNER, NORMAL, TANK, BOSS };
+	enum class TowerType { FAST, SPLASH, STREAM };
+	enum class EnemyType { RUNNER, WALKER, TANK, BOSS };
 	enum class Difficulty { HARD, MEDIUM, EASY, INFINITE };
-	enum class GameState { MENU, ROUND, GAME_OVER };
+	enum class GameState { MENU, PAUSE, ROUND_INIT, ROUND_ACTION, GAME_OVER };
+
+	struct WaveEnemyData
+	{
+		int enemyCount;
+		GameObjects::EnemyType type;
+		float instanceDelay;
+		int startWaveDelay;
+	};
+	struct SpawnEvent
+	{
+		float spawnTime;  // Absolute time from gameplay start to spawn enemy
+		GameObjects::EnemyType type;
+	};
 
 	class Enemy
 	{
@@ -57,6 +70,10 @@ namespace GameObjects
 		float range;
 		std::string color;
 
+		//Constructor
+		Tower(int prc, int dmg, float rof, float rng, const std::string& c)
+			: price(prc), damagePerBullet(dmg), rateOfFire(rof), range(rng), color(c) {
+		}
 		virtual ~Tower() = default;
 	};
 
@@ -66,10 +83,9 @@ namespace GameObjects
 		static std::unique_ptr<Tower> createTower(const TowerType& type);
 	};
 
-
-	class Fast : public Tower {};
-	class Splash : public Tower {};
-	class Laser : public Tower {};
+	class Fast : public Tower { using Tower::Tower; };
+	class Splash : public Tower { using Tower::Tower; };
+	class STREAM : public Tower { using Tower::Tower; };
 
 	class Tile
 	{
@@ -77,25 +93,18 @@ namespace GameObjects
 		int x, y;
 		std::string texture;
 
+		Tile(int xPos, int yPos, const std::string& c)
+			: x(xPos), y(yPos), texture(c) {
+		}
+
 		virtual ~Tile() = default;
 	};
 
-	class Background : public Tile {};
-	class TowerSpot : public Tile {};
-	class EnemyPath : public Tile {};
+	class Background : public Tile { using Tile::Tile; };
+	class TowerSpot : public Tile { using Tile::Tile; };
+	class EnemyPath : public Tile { using Tile::Tile; };
 
-	struct WaveEnemyData
-	{
-		int enemyCount;
-		GameObjects::EnemyType type;
-		float instanceDelay;
-		int startWaveDelay;
-	};
-	struct SpawnEvent
-	{
-		float spawnTime;  // Absolute time from game start to spawn enemy
-		GameObjects::EnemyType type;
-	};
+
 
 	class Game
 	{
@@ -119,10 +128,11 @@ namespace GameObjects
 		int startRoundDelay = 0;
 
 		//Dynamic data
-		int roundNumber = 1;
+		int roundNumber = 1; //starts from 1
 		int gold = 0;
 		int centralFactoryHealth = 0;
 		int score = 0;
+		enum GameState state = GameState::MENU;
 
 		std::vector<std::unique_ptr<Tower>> towers;
 		std::vector<std::unique_ptr<Enemy>> enemies;
@@ -139,7 +149,7 @@ namespace GameObjects
 		void end();
 
 		void loadWaveDataFromFile();
-		void loadWaveData(int waveNum);
+		void loadRoundWaveData(int waveNum);
 		void processEnemyData();
 		void processTowerData();
 	};

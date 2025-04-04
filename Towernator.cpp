@@ -41,6 +41,10 @@ int main()
 		game.deltaTime = deltaClock.getElapsedTime().asSeconds();
 		game.elapsedTime = masterClock.getElapsedTime().asSeconds();
 		game.update();
+		if (game.state == GameObjects::GameState::GAME_OVER)
+		{
+			break;
+		}
 
 		//if (io.DeltaTime <= 0.0f) io.DeltaTime = 0.00001f;
 		ImGui::SFML::Update(window, deltaClock.getElapsedTime());

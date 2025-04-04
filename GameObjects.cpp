@@ -11,17 +11,17 @@ namespace GameObjects
 	{
 		//TODO: file loading
 		if (type == EnemyType::RUNNER) return std::make_unique<Runner>(50, 30, 10, 40, std::string("ff0000"));
-		if (type == EnemyType::NORMAL) return std::make_unique<Walker>(50, 30, 10, 40, std::string("ff0000"));
-		if (type == EnemyType::TANK) return std::make_unique<Tank>(50, 30, 10, 40, std::string("ff0000"));
-		if (type == EnemyType::BOSS) return std::make_unique<Boss>(50, 30, 10, 40, std::string("ff0000"));
+		if (type == EnemyType::WALKER) return std::make_unique<Walker>(50, 30, 10, 40, std::string("00ff00"));
+		if (type == EnemyType::TANK) return std::make_unique<Tank>(50, 30, 10, 40, std::string("0000ff"));
+		if (type == EnemyType::BOSS) return std::make_unique<Boss>(50, 30, 10, 40, std::string("000000"));
 		return nullptr;
 	}
 
 	std::unique_ptr<Tower> TowerFactory::createTower(const TowerType& type)
 	{
-		if (type == TowerType::FAST) return std::make_unique<Fast>();
-		if (type == TowerType::SPLASH) return std::make_unique<Splash>();
-		if (type == TowerType::LASER) return std::make_unique<Laser>();
+		if (type == TowerType::FAST) return std::make_unique<Fast>(100, 20, 2.0f, 3, "880000");
+		if (type == TowerType::SPLASH) return std::make_unique<Splash>(200, 50, 0.75f, 2.5f, "008800");
+		if (type == TowerType::STREAM) return std::make_unique<STREAM>(150, 2, 0.05f, 4.0f, "000088");
 		return nullptr;
 	}
 
@@ -36,41 +36,45 @@ namespace GameObjects
 
 	void Game::initialize(/*Difficulty dif*/)
 	{
+		state = GameState::ROUND_INIT;
+
+		loadWaveDataFromFile();
+
 		//difficulty will be handled later
 		/*switch (dif)
 		{
 		case Difficulty::EASY:
 		{
-			this->gold = 1000;
-			this->centralFactoryHealth = 300;
-			this->startRoundDelay = 10;
+			gold = 1000;
+			centralFactoryHealth = 300;
+			startRoundDelay = 10;
 
 
 			break;
 		}
 		case Difficulty::MEDIUM:
 		{
-			this->gold = 500;
-			this->centralFactoryHealth = 200;
-			this->startRoundDelay = 7;
+			gold = 500;
+			centralFactoryHealth = 200;
+			startRoundDelay = 7;
 
 
 			break;
 		};
 		case Difficulty::HARD:
 		{
-			this->gold = 200;
-			this->centralFactoryHealth = 150;
-			this->startRoundDelay = 4;
+			gold = 200;
+			centralFactoryHealth = 150;
+			startRoundDelay = 4;
 
 
 			break;
 		};
 		case Difficulty::INFINTE:
 		{
-			this->gold = 300;
-			this->centralFactoryHealth = 300;
-			this->startRoundDelay = 5;
+			gold = 300;
+			centralFactoryHealth = 300;
+			startRoundDelay = 5;
 
 
 			break;
@@ -78,40 +82,46 @@ namespace GameObjects
 		}*/
 	}
 
-	//hardcoded for now
+	//info hardcoded for now
 	void Game::loadWaveDataFromFile()
 	{
-		this->waves.resize(3);
+		waves.resize(3);
 
 		// Wave 1
-		this->waves[0].push_back({ 5, EnemyType::RUNNER, 0.66f, 0 });
-		this->waves[0].push_back({ 5, EnemyType::NORMAL, 1.0f, 3 });
+		waves[0].push_back({ 5, EnemyType::RUNNER, 0.66f, 0 });
+		waves[0].push_back({ 5, EnemyType::WALKER, 1.0f, 3 });
 
 		// Wave 2
-		this->waves[1].push_back({ 4, EnemyType::TANK, 2.0f, 5 });
-		this->waves[1].push_back({ 6, EnemyType::NORMAL, 0.4f, 5 });
+		waves[1].push_back({ 4, EnemyType::TANK, 2.0f, 5 });
+		waves[1].push_back({ 6, EnemyType::WALKER, 0.4f, 5 });
 
 		// Wave 3
-		this->waves[2].push_back({ 3, EnemyType::BOSS, 3.0f, 10 });
-		this->waves[2].push_back({ 7, EnemyType::RUNNER, 0.3f, 10 });
+		waves[2].push_back({ 3, EnemyType::BOSS, 3.0f, 10 });
+		waves[2].push_back({ 7, EnemyType::RUNNER, 0.3f, 10 });
 
-		this->gold = 1000;
-		this->centralFactoryHealth = 300;
-		this->startRoundDelay = 10;
+		gold = 1000;
+		centralFactoryHealth = 300;
+		startRoundDelay = 5;
 	}
 
-	void Game::loadWaveData(int waveNum)
+	void Game::loadRoundWaveData(int waveNum)
 	{
-		this->spawnQueue = {};
-		float currentTime = elapsedTime;
+		spawnQueue = {};
+		float currentTime = elapsedTime + startRoundDelay;
+		float prevEnd = currentTime;
 
-		for (const auto& wave : this->waves[waveNum])
+		for (int i = 0; i < waves[waveNum].size(); i++)
 		{
-			float waveStartTime = currentTime + wave.startWaveDelay;
+			float waveStartTime = prevEnd + waves[waveNum][i].startWaveDelay;
 
-			for (int i = 0; i < wave.enemyCount; ++i)
+			for (int j = 0; j < waves[waveNum][i].enemyCount; j++)
 			{
-				this->spawnQueue.push({ waveStartTime + i * wave.instanceDelay, wave.type });
+				spawnQueue.push({ waveStartTime + j * waves[waveNum][i].instanceDelay, waves[waveNum][i].type });
+				if (j == waves[waveNum][i].enemyCount - 1)
+				{
+					prevEnd = waveStartTime + j * waves[waveNum][i].instanceDelay;
+				}
+				std::cout << waveStartTime + j * waves[waveNum][i].instanceDelay << "s t: " << static_cast<int>(waves[waveNum][i].type) << "\n";
 			}
 		}
 	}
@@ -121,7 +131,7 @@ namespace GameObjects
 		auto enemy = EnemyFactory::createEnemy(type);
 		if (enemy)
 		{
-			this->enemies.push_back(std::move(enemy));
+			enemies.push_back(std::move(enemy));
 			std::cout << "Spawned " << static_cast<int>(type) << " enemy\n";
 		}
 	}
@@ -130,7 +140,7 @@ namespace GameObjects
 		auto tower = TowerFactory::createTower(type);
 		if (tower)
 		{
-			this->towers.push_back(std::move(tower));
+			towers.push_back(std::move(tower));
 		}
 	}
 
@@ -139,29 +149,43 @@ namespace GameObjects
 		processEnemyData();
 		processTowerData();
 
-		loadWaveDataFromFile();
-		loadWaveData(this->roundNumber);
-
-		while (!(this->spawnQueue.empty()) && this->spawnQueue.front().spawnTime <= elapsedTime)
+		if (spawnQueue.empty())
 		{
-
-			SpawnEvent& event = this->spawnQueue.front();
-			spawnEnemy(event.type);
-			this->spawnQueue.pop();
+			state = GameState::ROUND_INIT;
+		}
+		if ((roundNumber > 3 && spawnQueue.empty()) || centralFactoryHealth == 0)
+		{
+			state = GameState::GAME_OVER;
+		}
+		if (state == GameState::ROUND_INIT)
+		{
+			loadRoundWaveData(roundNumber - 1);
+			state = GameState::ROUND_ACTION;
+			roundNumber++;
 		}
 
-		if (this->centralFactoryHealth == 0)
-			Game::end();
+		if (state == GameState::ROUND_ACTION)
+		{
+			while (!(spawnQueue.empty()) && spawnQueue.front().spawnTime <= elapsedTime)
+			{
+				SpawnEvent& event = spawnQueue.front();
+				spawnEnemy(event.type);
+				spawnQueue.pop();
+			}
+		}
 	}
 
 	void Game::processEnemyData()
 	{
-		for (const auto& enemy : this->enemies)
+		for (const auto& enemy : enemies)
 		{
-			enemy->progressInPath += enemy->speed * this->deltaTime;
+			enemy->progressInPath += enemy->speed * deltaTime;
 
 			if (enemy->progressInPath >= 1.0f)
-				this->centralFactoryHealth -= enemy->damage;
+			{
+				;//centralFactoryHealth -= enemy->damage;
+				//delete enemy
+			}
 		}
 	}
 
@@ -175,6 +199,6 @@ namespace GameObjects
 
 	void Game::end()
 	{
-
+		return;
 	}
 }
