@@ -26,21 +26,28 @@ int main()
 	masterClock.start();
 	while (window.isOpen())
 	{
-		float deltaTime = deltaClock.restart().asSeconds();
+		deltaClock.restart();
 		const sf::Event UIevent();
 		while (const std::optional event = window.pollEvent())
 		{
 			ImGui::SFML::ProcessEvent(window, *event);
+			//Close window if X is clicked
 			if (event->is<sf::Event::Closed>())
 			{
 				window.close();
 			}
 		}
 
-		game.update(deltaTime, masterClock.getElapsedTime().asSeconds());
+		game.deltaTime = deltaClock.getElapsedTime().asSeconds();
+		game.elapsedTime = masterClock.getElapsedTime().asSeconds();
+		game.update();
+		if (game.state == GameObjects::GameState::GAME_OVER)
+		{
+			break;
+		}
 
-
-		ImGui::SFML::Update(window, deltaClock.restart());
+		//if (io.DeltaTime <= 0.0f) io.DeltaTime = 0.00001f;
+		ImGui::SFML::Update(window, deltaClock.getElapsedTime());
 
 		ImGui::Begin("Window title");
 		ImGui::Text("Window text");

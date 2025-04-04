@@ -11,13 +11,27 @@
 #include <vector>
 #include <unordered_map>
 #include <SFML/Graphics.hpp>
+#include <queue>
 
 namespace GameObjects
 {
-	enum class TowerType { FAST, SPLASH, LASER };
-	enum class EnemyType { RUNNER, NORMAL, TANK, BOSS };
+	enum class TowerType { FAST, SPLASH, STREAM };
+	enum class EnemyType { RUNNER, WALKER, TANK, BOSS };
 	enum class Difficulty { HARD, MEDIUM, EASY, INFINITE };
-	enum class GameState { MENU, ROUND, GAME_OVER };
+	enum class GameState { MENU, PAUSE, ROUND_INIT, ROUND_ACTION, GAME_OVER };
+
+	struct WaveEnemyData
+	{
+		int enemyCount;
+		GameObjects::EnemyType type;
+		float instanceDelay;
+		int startWaveDelay;
+	};
+	struct SpawnEvent
+	{
+		float spawnTime;  // Absolute time from gameplay start to spawn enemy
+		GameObjects::EnemyType type;
+	};
 
 	class Enemy
 	{
@@ -36,16 +50,10 @@ namespace GameObjects
 		virtual ~Enemy() = default;
 	};
 
-	class Runner : public Enemy
-	{
-	public:
-		Runner(int hlt, int dmg, float spd, int rew, const std::string& c)
-			: Enemy(hlt, dmg, spd, rew, c) {
-		}
-	};
-	class Normal : public Enemy {};
-	class Tank : public Enemy {};
-	class Boss : public Enemy {};
+	class Runner : public Enemy { using Enemy::Enemy; };
+	class Walker : public Enemy { using Enemy::Enemy; };
+	class Tank : public Enemy { using Enemy::Enemy; };
+	class Boss : public Enemy { using Enemy::Enemy; };
 
 	class EnemyFactory
 	{
@@ -62,6 +70,10 @@ namespace GameObjects
 		float range;
 		std::string color;
 
+		//Constructor
+		Tower(int prc, int dmg, float rof, float rng, const std::string& c)
+			: price(prc), damagePerBullet(dmg), rateOfFire(rof), range(rng), color(c) {
+		}
 		virtual ~Tower() = default;
 	};
 
@@ -71,10 +83,9 @@ namespace GameObjects
 		static std::unique_ptr<Tower> createTower(const TowerType& type);
 	};
 
-
-	class Fast : public Tower {};
-	class Splash : public Tower {};
-	class Laser : public Tower {};
+	class Fast : public Tower { using Tower::Tower; };
+	class Splash : public Tower { using Tower::Tower; };
+	class STREAM : public Tower { using Tower::Tower; };
 
 	class Tile
 	{
@@ -82,20 +93,18 @@ namespace GameObjects
 		int x, y;
 		std::string texture;
 
+		Tile(int xPos, int yPos, const std::string& c)
+			: x(xPos), y(yPos), texture(c) {
+		}
+
 		virtual ~Tile() = default;
 	};
 
-	class Background : public Tile {};
-	class TowerSpot : public Tile {};
-	class EnemyPath : public Tile {};
+	class Background : public Tile { using Tile::Tile; };
+	class TowerSpot : public Tile { using Tile::Tile; };
+	class EnemyPath : public Tile { using Tile::Tile; };
 
-	struct WaveEnemyData
-	{
-		int enemyCount;
-		GameObjects::EnemyType type;
-		float instanceDelay;
-		int startWaveDelay;
-	};
+
 
 	class Game
 	{
@@ -119,21 +128,30 @@ namespace GameObjects
 		int startRoundDelay = 0;
 
 		//Dynamic data
-		int roundNumber = 1;
+		int roundNumber = 1; //starts from 1
 		int gold = 0;
 		int centralFactoryHealth = 0;
 		int score = 0;
+		enum GameState state = GameState::MENU;
 
 		std::vector<std::unique_ptr<Tower>> towers;
 		std::vector<std::unique_ptr<Enemy>> enemies;
+		std::queue<SpawnEvent> spawnQueue;
+		float deltaTime = 0;
+		float elapsedTime = 0;
 
 		void spawnEnemy(EnemyType type);
 		void spawnTower(TowerType type);
 
 		void togglePause(bool gamePaused);
 		void initialize(/*GameObjects::Difficulty dif*/);
-		void update(float deltaTime, float elapsedTime);
+		void update();
 		void end();
+
+		void loadWaveDataFromFile();
+		void loadRoundWaveData(int waveNum);
+		void processEnemyData();
+		void processTowerData();
 	};
 
 }
