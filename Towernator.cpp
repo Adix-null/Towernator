@@ -17,21 +17,37 @@ int main()
 
 	GameObjects::Game& game = GameObjects::Game::getInstance();
 
-	game.initialize(GameObjects::Difficulty::MEDIUM);
+	game.initialize(/*GameObjects::Difficulty::EASY*/);
 
 	sf::Clock deltaClock;
+	sf::Clock masterClock;
+
+	deltaClock.start();
+	masterClock.start();
 	while (window.isOpen())
 	{
+		deltaClock.restart();
 		const sf::Event UIevent();
 		while (const std::optional event = window.pollEvent())
 		{
 			ImGui::SFML::ProcessEvent(window, *event);
+			//Close window if X is clicked
 			if (event->is<sf::Event::Closed>())
 			{
 				window.close();
 			}
 		}
-		ImGui::SFML::Update(window, deltaClock.restart());
+
+		game.deltaTime = deltaClock.getElapsedTime().asSeconds();
+		game.elapsedTime = masterClock.getElapsedTime().asSeconds();
+		game.update();
+		if (game.state == GameObjects::GameState::GAME_OVER)
+		{
+			break;
+		}
+
+		//if (io.DeltaTime <= 0.0f) io.DeltaTime = 0.00001f;
+		ImGui::SFML::Update(window, deltaClock.getElapsedTime());
 
 		ImGui::Begin("Window title");
 		ImGui::Text("Window text");
