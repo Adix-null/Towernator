@@ -4,7 +4,7 @@
 #include <functional>
 #include <math.h>
 #include "GameObjects.hpp"
-
+#include <SFML/Graphics.hpp>
 namespace GameObjects
 {
 	std::unique_ptr<Enemy> EnemyFactory::createEnemy(const EnemyType& type)
@@ -21,7 +21,7 @@ namespace GameObjects
 	{
 		if (type == TowerType::FAST) return std::make_unique<Fast>(100, 20, 2.0f, 3, "880000");
 		if (type == TowerType::SPLASH) return std::make_unique<Splash>(200, 50, 0.75f, 2.5f, "008800");
-		if (type == TowerType::STREAM) return std::make_unique<STREAM>(150, 2, 0.05f, 4.0f, "000088");
+		if (type == TowerType::STREAM) return std::make_unique<Stream>(150, 2, 0.05f, 4.0f, "000088");
 		return nullptr;
 	}
 
@@ -143,7 +143,31 @@ namespace GameObjects
 			towers.push_back(std::move(tower));
 		}
 	}
-
+	void Game::drawGrid(sf::RenderWindow& win, int rows, int cols) {
+		// initialize values
+		int numLines = rows + cols - 2;
+		sf::VertexArray grid(sf::PrimitiveType::Lines, 2 * (numLines));
+		win.setView(win.getDefaultView());
+		auto size = win.getView().getSize();
+		float rowH = size.y / rows;
+		float colW = size.x / cols;
+		// row separators
+		for (int i = 0; i < rows - 1; i++) {
+			int r = i + 1;
+			float rowY = rowH * r;
+			grid[i * 2].position = { 0, rowY };
+			grid[i * 2 + 1].position = { size.x, rowY };
+		}
+		// column separators
+		for (int i = rows - 1; i < numLines; i++) {
+			int c = i - rows + 2;
+			float colX = colW * c;
+			grid[i * 2].position = { colX, 0 };
+			grid[i * 2 + 1].position = { colX, size.y };
+		}
+		// draw it
+		win.draw(grid);
+	}
 	void Game::update()
 	{
 		processEnemyData();

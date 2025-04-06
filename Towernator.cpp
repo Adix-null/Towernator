@@ -59,6 +59,7 @@ int main()
 		//render 
 		window.clear(sf::Color(18, 33, 43)); // Color background
 		window.draw(shape);
+		GameObjects::Game::getInstance().drawGrid(window, 32, 32);
 		ImGui::SFML::Render(window);
 		window.display();
 	}
