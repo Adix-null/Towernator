@@ -85,7 +85,7 @@ namespace GameObjects
 
 	class Fast : public Tower { using Tower::Tower; };
 	class Splash : public Tower { using Tower::Tower; };
-	class STREAM : public Tower { using Tower::Tower; };
+	class Stream : public Tower { using Tower::Tower; };
 
 	class Tile
 	{
@@ -152,6 +152,7 @@ namespace GameObjects
 		void loadRoundWaveData(int waveNum);
 		void processEnemyData();
 		void processTowerData();
+		void drawGrid(sf::RenderWindow& win, int rows, int cols);
 	};
 
 }
