@@ -8,14 +8,12 @@
 
 int main()
 {
-	sf::RenderWindow window(sf::VideoMode(sf::Vector2u(800, 800)), "Test window");
+	//sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
+	sf::RenderWindow window(sf::VideoMode(sf::Vector2u(GameObjects::WINDOW_WIDTH, GameObjects::WINDOW_HEIGHT)), "Test window", sf::Style::Titlebar | sf::Style::Close);
 	ImGui::SFML::Init(window);
 
-	sf::CircleShape shape(200, 100);
-	shape.setFillColor(sf::Color(0, 255, 255));
-	shape.setPosition(sf::Vector2f(200, 200)); // Center circle
-
 	GameObjects::Game& game = GameObjects::Game::getInstance();
+	game.window = &window;
 
 	game.initialize(/*GameObjects::Difficulty::EASY*/);
 
@@ -37,6 +35,7 @@ int main()
 				window.close();
 			}
 		}
+		window.clear(sf::Color(32, 32, 32));
 
 		game.deltaTime = deltaClock.getElapsedTime().asSeconds();
 		game.elapsedTime = masterClock.getElapsedTime().asSeconds();
@@ -57,9 +56,7 @@ int main()
 		//should primarily be used for high level function calls
 
 		//render 
-		window.clear(sf::Color(18, 33, 43)); // Color background
-		window.draw(shape);
-		GameObjects::Game::getInstance().drawGrid(window, 32, 32);
+		//GameObjects::Game::getInstance().drawGrid(32, 32);
 		ImGui::SFML::Render(window);
 		window.display();
 	}
