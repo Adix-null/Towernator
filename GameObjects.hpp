@@ -20,8 +20,8 @@ namespace GameObjects
 	enum class Difficulty { HARD, MEDIUM, EASY, INFINITE };
 	enum class GameState { MENU, PAUSE, ROUND_INIT, ROUND_ACTION, GAME_OVER };
 
-	constexpr int WINDOW_WIDTH = 2220;
-	constexpr int WINDOW_HEIGHT = 1080;
+	constexpr int WINDOW_WIDTH = 2220 / 2;
+	constexpr int WINDOW_HEIGHT = 1080 / 2;
 
 	struct WaveEnemyData
 	{
@@ -164,6 +164,8 @@ namespace GameObjects
 		void renderImage(sf::Texture texture, std::optional<sf::Vector2f> pos);
 		void drawGrid(int rows, int cols);
 		std::vector<sf::Texture> textures;
+		float textureScale = 1;
+		sf::Vector2f GameToWindowCoords(sf::Vector2f coords) const;
 	};
 
 }

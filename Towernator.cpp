@@ -36,8 +36,9 @@ int main()
 			}
 		}
 		window.clear(sf::Color(32, 32, 32));
+		window.setFramerateLimit(120);
 
-		game.deltaTime = deltaClock.getElapsedTime().asSeconds();
+		game.deltaTime = std::max(deltaClock.getElapsedTime().asSeconds(), 1/120.0f);
 		game.elapsedTime = masterClock.getElapsedTime().asSeconds();
 		game.update();
 		if (game.state == GameObjects::GameState::GAME_OVER)

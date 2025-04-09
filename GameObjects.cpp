@@ -11,22 +11,64 @@ namespace GameObjects
 	{
 		return start + t * (end - start);
 	}
+	static float dist(const sf::Vector2f& a, const sf::Vector2f& b)
+	{
+		return std::hypot(b.x - a.x, b.y - a.y);
+	}
+
+	static sf::Vector2f interpolatePath(const std::vector<sf::Vector2i>& points, float t)
+	{
+		if (points.size() < 2)
+			return sf::Vector2f(points.front());
+
+		// Compute segment lengths
+		std::vector<float> lengths;
+		float totalLength = 0.0f;
+		for (size_t i = 1; i < points.size(); ++i)
+		{
+			float len = std::hypot(
+				static_cast<float>(points[i].x - points[i - 1].x),
+				static_cast<float>(points[i].y - points[i - 1].y)
+			);
+			lengths.push_back(len);
+			totalLength += len;
+		}
+
+		float distance = t * totalLength;
+
+		// Find which segment the distance falls into
+		for (size_t i = 0; i < lengths.size(); ++i)
+		{
+			if (distance <= lengths[i])
+			{
+				float localT = distance / lengths[i];
+				sf::Vector2f a(points[i]);
+				sf::Vector2f b(points[i + 1]);
+				return a + (b - a) * localT;
+			}
+			distance -= lengths[i];
+		}
+
+		return sf::Vector2f(points.back());
+	}
+
+
 
 	static sf::Vector2f interpolatePosition(std::vector<sf::Vector2i>& points, float t)
 	{
-		t = std::clamp(t, 0.f, 1.f);
+		t = std::clamp(t, 0.0f, 1.0f);
 		return lerp(static_cast<sf::Vector2f>(points.front()), static_cast<sf::Vector2f>(points.back()), t);
 	}
 
-	static sf::Vector2f GameToWindowCoords(sf::Vector2f coords)
+	sf::Vector2f Game::GameToWindowCoords(sf::Vector2f coords) const
 	{
-		return static_cast<sf::Vector2f>(coords) * (WINDOW_WIDTH / 9.0f);
+		return static_cast<sf::Vector2f>(coords - sf::Vector2f(1, 1))* (WINDOW_HEIGHT / 9.0f);
 	}
 
 	std::unique_ptr<Enemy> EnemyFactory::createEnemy(const EnemyType& type)
 	{
 		//TODO: file loading
-		if (type == EnemyType::RUNNER) return std::make_unique<Runner>(50, 30, 0.03f, 40, std::string("ff0000"));
+		if (type == EnemyType::RUNNER) return std::make_unique<Runner>(50, 30, 0.05f, 40, std::string("ff0000"));
 		if (type == EnemyType::WALKER) return std::make_unique<Walker>(50, 30, 0.015f, 40, std::string("00ff00"));
 		if (type == EnemyType::TANK) return std::make_unique<Tank>(50, 30, 10, 0.01f, std::string("0000ff"));
 		if (type == EnemyType::BOSS) return std::make_unique<Boss>(50, 30, 10, 0.0075f, std::string("000000"));
@@ -108,22 +150,28 @@ namespace GameObjects
 	//info hardcoded for now
 	void Game::loadWaveDataFromFile()
 	{
-		pathPoints.push_back({ 15, 2 });
+		pathPoints.push_back({ 16, 2 }); //start
 		pathPoints.push_back({ 2, 2 });
+		pathPoints.push_back({ 2, 8 });
+		pathPoints.push_back({ 15, 8 });
+		pathPoints.push_back({ 15, 4 });
+		pathPoints.push_back({ 4, 4 });
+		pathPoints.push_back({ 4, 6 });
+		pathPoints.push_back({ 12, 6 }); //end
 
 		waves.resize(3);
 
 		// Wave 1
 		waves[0].push_back({ 1, EnemyType::RUNNER, 0.66f, 0 });
-		waves[0].push_back({ 1, EnemyType::WALKER, 1.0f, 3 });
+		waves[0].push_back({ 0, EnemyType::WALKER, 1.0f, 3 });
 
 		// Wave 2
-		waves[1].push_back({ 1, EnemyType::TANK, 2.0f, 5 });
-		waves[1].push_back({ 1, EnemyType::WALKER, 0.4f, 5 });
+		waves[1].push_back({ 0, EnemyType::TANK, 2.0f, 5 });
+		waves[1].push_back({ 0, EnemyType::WALKER, 0.4f, 5 });
 
 		// Wave 3
-		waves[2].push_back({ 3, EnemyType::BOSS, 3.0f, 10 });
-		waves[2].push_back({ 7, EnemyType::RUNNER, 0.3f, 10 });
+		waves[2].push_back({ 0, EnemyType::BOSS, 3.0f, 10 });
+		waves[2].push_back({ 1, EnemyType::RUNNER, 0.3f, 10000 });
 
 		gold = 1000;
 		centralFactoryHealth = 300;
@@ -204,7 +252,7 @@ namespace GameObjects
 		{
 			state = GameState::ROUND_INIT;
 		}
-		if ((roundNumber > 3 && spawnQueue.empty()) || centralFactoryHealth == 0)
+		if ((roundNumber > 3 && spawnQueue.empty()) || centralFactoryHealth <= 0)
 		{
 			state = GameState::GAME_OVER;
 		}
@@ -232,12 +280,12 @@ namespace GameObjects
 		for (const auto& enemy : enemies)
 		{
 			enemy->progressInPath += enemy->speed * deltaTime;
-			renderImage(textures[1], /*sf::Vector2f(1920 / 2, 1080 / 2)*/ GameToWindowCoords(interpolatePosition(pathPoints, enemy->progressInPath)));
+			renderImage(textures[1], /*sf::Vector2f(1920 * enemy->progressInPath, 0)*/ GameToWindowCoords(interpolatePath(pathPoints, enemy->progressInPath)));
 
 			if (enemy->progressInPath >= 1.0f)
 			{
-				;//centralFactoryHealth -= enemy->damage;
-				//delete enemy
+				centralFactoryHealth -= enemy->damage;
+				//delete &enemy;
 			}
 		}
 	}
@@ -256,6 +304,7 @@ namespace GameObjects
 		sf::Vector2u textureSize = textures[0].getSize();
 
 		float scale = std::min(float(windowSize.x) / textureSize.x, float(windowSize.y) / textureSize.y);
+		textureScale = scale;
 
 		windowSprite.setScale(sf::Vector2f(scale, scale));
 
@@ -283,7 +332,7 @@ namespace GameObjects
 	void Game::renderImage(sf::Texture texture, std::optional<sf::Vector2f> pos)
 	{
 		sf::Sprite sprite = sf::Sprite(texture);
-
+		sprite.setOrigin(sf::Vector2f(0, 0));
 		if (!pos.has_value())
 		{
 			sprite.setPosition({ 300, 300 });
@@ -292,7 +341,7 @@ namespace GameObjects
 		{
 			sprite.setPosition(pos.value());
 		}
-
+		sprite.setScale(sf::Vector2f(textureScale, textureScale));
 		(*window).draw(sprite);
 	}
 
