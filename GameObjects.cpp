@@ -67,9 +67,9 @@ namespace GameObjects
 		return lerp(static_cast<sf::Vector2f>(points.front()), static_cast<sf::Vector2f>(points.back()), t);
 	}
 
-	sf::Vector2f Game::GameToWindowCoords(sf::Vector2f coords, sf::Vector2u size) const
+	sf::Vector2f Game::GameToWindowCoords(sf::Vector2f coords) const
 	{
-		return static_cast<sf::Vector2f>(coords - sf::Vector2f(1, 1)) *  (WINDOW_HEIGHT / 9.0f) + static_cast<sf::Vector2f>(size) * 0.5f;
+		return static_cast<sf::Vector2f>(coords - sf::Vector2f(0.5f, 0.5f)) *  (WINDOW_HEIGHT / 9.0f);
 	}
 
 	std::unique_ptr<Enemy> EnemyFactory::createEnemy(const EnemyType& type)
@@ -289,7 +289,7 @@ namespace GameObjects
 			auto& enemy = **it;
 			auto transformationResult = interpolatePath(pathPoints, enemy.progressInPath);
 			enemy.progressInPath += enemy.speed * deltaTime;
-			renderImage(textures[1], GameToWindowCoords(transformationResult.first, textures[1].getSize()), transformationResult.second);
+			renderImage(textures[1], GameToWindowCoords(transformationResult.first), transformationResult.second);
 
 			if (enemy.progressInPath >= 1.0f)
 			{

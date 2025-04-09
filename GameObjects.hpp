@@ -165,7 +165,7 @@ namespace GameObjects
 		void drawGrid(int rows, int cols);
 		std::vector<sf::Texture> textures;
 		float textureScale = 1;
-		sf::Vector2f GameToWindowCoords(sf::Vector2f coords, sf::Vector2u size) const;
+		sf::Vector2f GameToWindowCoords(sf::Vector2f coords) const;
 	};
 
 }
