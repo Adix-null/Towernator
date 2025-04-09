@@ -5,6 +5,7 @@
 #include <math.h>
 #include "GameObjects.hpp"
 #include <SFML/Graphics.hpp>
+
 namespace GameObjects
 {
 	static sf::Vector2f lerp(const sf::Vector2f& start, const sf::Vector2f& end, float t)
@@ -68,10 +69,10 @@ namespace GameObjects
 	std::unique_ptr<Enemy> EnemyFactory::createEnemy(const EnemyType& type)
 	{
 		//TODO: file loading
-		if (type == EnemyType::RUNNER) return std::make_unique<Runner>(50, 30, 0.05f, 40, std::string("ff0000"));
-		if (type == EnemyType::WALKER) return std::make_unique<Walker>(50, 30, 0.015f, 40, std::string("00ff00"));
-		if (type == EnemyType::TANK) return std::make_unique<Tank>(50, 30, 10, 0.01f, std::string("0000ff"));
-		if (type == EnemyType::BOSS) return std::make_unique<Boss>(50, 30, 10, 0.0075f, std::string("000000"));
+		if (type == EnemyType::RUNNER) return std::make_unique<Runner>(50, 30, 0.15f, 40, std::string("ff0000"));
+		if (type == EnemyType::WALKER) return std::make_unique<Walker>(50, 30, 0.05f, 40, std::string("00ff00"));
+		if (type == EnemyType::TANK) return std::make_unique<Tank>(50, 30, 0.03f, 10, std::string("0000ff"));
+		if (type == EnemyType::BOSS) return std::make_unique<Boss>(50, 30, 0.02f, 50, std::string("000000"));
 		return nullptr;
 	}
 
@@ -162,16 +163,16 @@ namespace GameObjects
 		waves.resize(3);
 
 		// Wave 1
-		waves[0].push_back({ 1, EnemyType::RUNNER, 0.66f, 0 });
-		waves[0].push_back({ 0, EnemyType::WALKER, 1.0f, 3 });
+		waves[0].push_back({ 5, EnemyType::RUNNER, 0.66f, 0 });
+		waves[0].push_back({ 5, EnemyType::WALKER, 1.0f, 3 });
 
 		// Wave 2
-		waves[1].push_back({ 0, EnemyType::TANK, 2.0f, 5 });
-		waves[1].push_back({ 0, EnemyType::WALKER, 0.4f, 5 });
+		waves[1].push_back({ 3, EnemyType::TANK, 2.0f, 5 });
+		waves[1].push_back({ 5, EnemyType::WALKER, 0.4f, 5 });
 
 		// Wave 3
-		waves[2].push_back({ 0, EnemyType::BOSS, 3.0f, 10 });
-		waves[2].push_back({ 1, EnemyType::RUNNER, 0.3f, 10000 });
+		waves[2].push_back({ 1, EnemyType::BOSS, 3.0f, 10 });
+		waves[2].push_back({ 15, EnemyType::RUNNER, 0.3f, 10000 });
 
 		gold = 1000;
 		centralFactoryHealth = 300;
@@ -252,7 +253,7 @@ namespace GameObjects
 		{
 			state = GameState::ROUND_INIT;
 		}
-		if ((roundNumber > 3 && spawnQueue.empty()) || centralFactoryHealth <= 0)
+		if ((roundNumber > 3 && spawnQueue.empty() && enemies.empty()) || centralFactoryHealth <= 0)
 		{
 			state = GameState::GAME_OVER;
 		}
@@ -277,15 +278,21 @@ namespace GameObjects
 
 	void Game::processEnemyData()
 	{
-		for (const auto& enemy : enemies)
+		for (auto it = enemies.begin(); it != enemies.end();)
 		{
-			enemy->progressInPath += enemy->speed * deltaTime;
-			renderImage(textures[1], /*sf::Vector2f(1920 * enemy->progressInPath, 0)*/ GameToWindowCoords(interpolatePath(pathPoints, enemy->progressInPath)));
+			auto& enemy = **it;
+			enemy.progressInPath += enemy.speed * deltaTime;
+			renderImage(textures[1], GameToWindowCoords(interpolatePath(pathPoints, enemy.progressInPath)));
 
-			if (enemy->progressInPath >= 1.0f)
+			if (enemy.progressInPath >= 1.0f)
 			{
-				centralFactoryHealth -= enemy->damage;
-				//delete &enemy;
+				centralFactoryHealth -= enemy.damage;
+				std::cout << "hit! Health = " << centralFactoryHealth << "\n";
+				it = enemies.erase(it);
+			}
+			else
+			{
+				++it;
 			}
 		}
 	}
