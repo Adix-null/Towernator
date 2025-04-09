@@ -17,10 +17,10 @@ namespace GameObjects
 		return std::hypot(b.x - a.x, b.y - a.y);
 	}
 
-	static sf::Vector2f interpolatePath(const std::vector<sf::Vector2i>& points, float t)
+	static std::pair<sf::Vector2f, float> interpolatePath(const std::vector<sf::Vector2i>& points, float t)
 	{
 		if (points.size() < 2)
-			return sf::Vector2f(points.front());
+			return { sf::Vector2f(points.front()), 0.0f };
 
 		// Compute segment lengths
 		std::vector<float> lengths;
@@ -45,15 +45,21 @@ namespace GameObjects
 				float localT = distance / lengths[i];
 				sf::Vector2f a(points[i]);
 				sf::Vector2f b(points[i + 1]);
-				return a + (b - a) * localT;
+
+				sf::Vector2f dir = b - a;
+				float angle = 180.0f - (std::atan2(dir.y, dir.x) * 180.f / 3.14159265f);
+
+				sf::Vector2f pos = a + (b - a) * localT;
+				return { pos, angle };
 			}
 			distance -= lengths[i];
 		}
 
-		return sf::Vector2f(points.back());
+		// Last point fallback
+		sf::Vector2f last = sf::Vector2f(points.back());
+
+		return { last, 0.0f };
 	}
-
-
 
 	static sf::Vector2f interpolatePosition(std::vector<sf::Vector2i>& points, float t)
 	{
@@ -61,9 +67,9 @@ namespace GameObjects
 		return lerp(static_cast<sf::Vector2f>(points.front()), static_cast<sf::Vector2f>(points.back()), t);
 	}
 
-	sf::Vector2f Game::GameToWindowCoords(sf::Vector2f coords) const
+	sf::Vector2f Game::GameToWindowCoords(sf::Vector2f coords, sf::Vector2u size) const
 	{
-		return static_cast<sf::Vector2f>(coords - sf::Vector2f(1, 1))* (WINDOW_HEIGHT / 9.0f);
+		return static_cast<sf::Vector2f>(coords - sf::Vector2f(1, 1)) *  (WINDOW_HEIGHT / 9.0f) + static_cast<sf::Vector2f>(size) * 0.5f;
 	}
 
 	std::unique_ptr<Enemy> EnemyFactory::createEnemy(const EnemyType& type)
@@ -281,8 +287,9 @@ namespace GameObjects
 		for (auto it = enemies.begin(); it != enemies.end();)
 		{
 			auto& enemy = **it;
+			auto transformationResult = interpolatePath(pathPoints, enemy.progressInPath);
 			enemy.progressInPath += enemy.speed * deltaTime;
-			renderImage(textures[1], GameToWindowCoords(interpolatePath(pathPoints, enemy.progressInPath)));
+			renderImage(textures[1], GameToWindowCoords(transformationResult.first, textures[1].getSize()), transformationResult.second);
 
 			if (enemy.progressInPath >= 1.0f)
 			{
@@ -336,19 +343,21 @@ namespace GameObjects
 		return textureCache[filename];
 	}
 
-	void Game::renderImage(sf::Texture texture, std::optional<sf::Vector2f> pos)
+	void Game::renderImage(sf::Texture texture, std::optional<sf::Vector2f> pos, std::optional<float> rotDeg)
 	{
 		sf::Sprite sprite = sf::Sprite(texture);
-		sprite.setOrigin(sf::Vector2f(0, 0));
-		if (!pos.has_value())
-		{
-			sprite.setPosition({ 300, 300 });
-		}
-		else
+
+		sprite.setScale(sf::Vector2f(textureScale, textureScale));
+
+		if (pos.has_value())
 		{
 			sprite.setPosition(pos.value());
 		}
-		sprite.setScale(sf::Vector2f(textureScale, textureScale));
+		if (rotDeg.has_value())
+		{
+			sprite.setOrigin(sprite.getLocalBounds().getCenter());
+			sprite.setRotation(sf::degrees(rotDeg.value()));
+		}
 		(*window).draw(sprite);
 	}
 

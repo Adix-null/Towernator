@@ -161,11 +161,11 @@ namespace GameObjects
 		void processTowerData();
 		void renderBackground();
 		sf::Texture& loadTexture(const std::filesystem::path& filename);
-		void renderImage(sf::Texture texture, std::optional<sf::Vector2f> pos);
+		void renderImage(sf::Texture texture, std::optional<sf::Vector2f> pos, std::optional<float> rot);
 		void drawGrid(int rows, int cols);
 		std::vector<sf::Texture> textures;
 		float textureScale = 1;
-		sf::Vector2f GameToWindowCoords(sf::Vector2f coords) const;
+		sf::Vector2f GameToWindowCoords(sf::Vector2f coords, sf::Vector2u size) const;
 	};
 
 }
