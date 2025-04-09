@@ -161,9 +161,9 @@ namespace GameObjects
 		void processTowerData();
 		void renderBackground();
 		sf::Texture& loadTexture(const std::filesystem::path& filename);
-		void renderImage(sf::Sprite sprite, std::optional<sf::Vector2f> pos);
+		void renderImage(sf::Texture texture, std::optional<sf::Vector2f> pos);
 		void drawGrid(int rows, int cols);
-		std::vector<sf::Sprite> sprites;
+		std::vector<sf::Texture> textures;
 	};
 
 }

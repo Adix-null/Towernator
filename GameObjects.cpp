@@ -26,10 +26,10 @@ namespace GameObjects
 	std::unique_ptr<Enemy> EnemyFactory::createEnemy(const EnemyType& type)
 	{
 		//TODO: file loading
-		if (type == EnemyType::RUNNER) return std::make_unique<Runner>(50, 30, 10, 40, std::string("ff0000"));
-		if (type == EnemyType::WALKER) return std::make_unique<Walker>(50, 30, 10, 40, std::string("00ff00"));
-		if (type == EnemyType::TANK) return std::make_unique<Tank>(50, 30, 10, 40, std::string("0000ff"));
-		if (type == EnemyType::BOSS) return std::make_unique<Boss>(50, 30, 10, 40, std::string("000000"));
+		if (type == EnemyType::RUNNER) return std::make_unique<Runner>(50, 30, 0.03f, 40, std::string("ff0000"));
+		if (type == EnemyType::WALKER) return std::make_unique<Walker>(50, 30, 0.015f, 40, std::string("00ff00"));
+		if (type == EnemyType::TANK) return std::make_unique<Tank>(50, 30, 10, 0.01f, std::string("0000ff"));
+		if (type == EnemyType::BOSS) return std::make_unique<Boss>(50, 30, 10, 0.0075f, std::string("000000"));
 		return nullptr;
 	}
 
@@ -53,8 +53,9 @@ namespace GameObjects
 	//No draw calls allowed as image buffer is cleared every frame
 	void Game::initialize(/*Difficulty dif*/)
 	{
-		sf::Texture texture_background = loadTexture("Saules_sprites/Maps/map1_gp_complete.gif");
-		sprites.push_back(sf::Sprite(texture_background));
+		//hack way fpr now
+		textures.push_back(loadTexture("Saules_sprites/Maps/map1_gp_complete.gif"));
+		textures.push_back(loadTexture("Saules_sprites/Enemies/robot_enemy1.gif"));
 
 		state = GameState::ROUND_INIT;
 
@@ -113,12 +114,12 @@ namespace GameObjects
 		waves.resize(3);
 
 		// Wave 1
-		waves[0].push_back({ 5, EnemyType::RUNNER, 0.66f, 0 });
-		waves[0].push_back({ 5, EnemyType::WALKER, 1.0f, 3 });
+		waves[0].push_back({ 1, EnemyType::RUNNER, 0.66f, 0 });
+		waves[0].push_back({ 1, EnemyType::WALKER, 1.0f, 3 });
 
 		// Wave 2
-		waves[1].push_back({ 4, EnemyType::TANK, 2.0f, 5 });
-		waves[1].push_back({ 6, EnemyType::WALKER, 0.4f, 5 });
+		waves[1].push_back({ 1, EnemyType::TANK, 2.0f, 5 });
+		waves[1].push_back({ 1, EnemyType::WALKER, 0.4f, 5 });
 
 		// Wave 3
 		waves[2].push_back({ 3, EnemyType::BOSS, 3.0f, 10 });
@@ -231,7 +232,7 @@ namespace GameObjects
 		for (const auto& enemy : enemies)
 		{
 			enemy->progressInPath += enemy->speed * deltaTime;
-			//renderImage("Saules_sprites/Enemies/robot_enemy1.gif", sf::Vector2f(1920 / 2, 1080 / 2)/* GameToWindowCoords(interpolatePosition(pathPoints, enemy->progressInPath))*/);
+			renderImage(textures[1], /*sf::Vector2f(1920 / 2, 1080 / 2)*/ GameToWindowCoords(interpolatePosition(pathPoints, enemy->progressInPath)));
 
 			if (enemy->progressInPath >= 1.0f)
 			{
@@ -251,13 +252,14 @@ namespace GameObjects
 	void Game::renderBackground()
 	{
 		sf::Vector2u windowSize = (*window).getSize();
-		sf::Vector2u textureSize = sprites[0].getTexture().getSize();
+		sf::Sprite windowSprite = sf::Sprite(textures[0]);
+		sf::Vector2u textureSize = textures[0].getSize();
 
 		float scale = std::min(float(windowSize.x) / textureSize.x, float(windowSize.y) / textureSize.y);
 
-		sprites[0].setScale(sf::Vector2f(scale, scale));
+		windowSprite.setScale(sf::Vector2f(scale, scale));
 
-		(*window).draw(sprites[0]);
+		(*window).draw(windowSprite);
 	}
 
 	sf::Texture& Game::loadTexture(const std::filesystem::path& filename)
@@ -278,9 +280,9 @@ namespace GameObjects
 		return textureCache[filename];
 	}
 
-	void Game::renderImage(sf::Sprite sprite, std::optional<sf::Vector2f> pos)
+	void Game::renderImage(sf::Texture texture, std::optional<sf::Vector2f> pos)
 	{
-		//sf::Texture& texture = loadTexture(filename);
+		sf::Sprite sprite = sf::Sprite(texture);
 
 		if (!pos.has_value())
 		{
