@@ -5,15 +5,80 @@
 #include <math.h>
 #include "GameObjects.hpp"
 #include <SFML/Graphics.hpp>
+
 namespace GameObjects
 {
+	static sf::Vector2f lerp(const sf::Vector2f& start, const sf::Vector2f& end, float t)
+	{
+		return start + t * (end - start);
+	}
+	static float dist(const sf::Vector2f& a, const sf::Vector2f& b)
+	{
+		return std::hypot(b.x - a.x, b.y - a.y);
+	}
+
+	static std::pair<sf::Vector2f, float> interpolatePath(const std::vector<sf::Vector2i>& points, float t)
+	{
+		if (points.size() < 2)
+			return { sf::Vector2f(points.front()), 0.0f };
+
+		// Compute segment lengths
+		std::vector<float> lengths;
+		float totalLength = 0.0f;
+		for (size_t i = 1; i < points.size(); ++i)
+		{
+			float len = std::hypot(
+				static_cast<float>(points[i].x - points[i - 1].x),
+				static_cast<float>(points[i].y - points[i - 1].y)
+			);
+			lengths.push_back(len);
+			totalLength += len;
+		}
+
+		float distance = t * totalLength;
+
+		// Find which segment the distance falls into
+		for (size_t i = 0; i < lengths.size(); ++i)
+		{
+			if (distance <= lengths[i])
+			{
+				float localT = distance / lengths[i];
+				sf::Vector2f a(points[i]);
+				sf::Vector2f b(points[i + 1]);
+
+				sf::Vector2f dir = b - a;
+				float angle = 180.0f - (std::atan2(dir.y, dir.x) * 180.f / 3.14159265f);
+
+				sf::Vector2f pos = a + (b - a) * localT;
+				return { pos, angle };
+			}
+			distance -= lengths[i];
+		}
+
+		// Last point fallback
+		sf::Vector2f last = sf::Vector2f(points.back());
+
+		return { last, 0.0f };
+	}
+
+	static sf::Vector2f interpolatePosition(std::vector<sf::Vector2i>& points, float t)
+	{
+		t = std::clamp(t, 0.0f, 1.0f);
+		return lerp(static_cast<sf::Vector2f>(points.front()), static_cast<sf::Vector2f>(points.back()), t);
+	}
+
+	sf::Vector2f Game::GameToWindowCoords(sf::Vector2f coords) const
+	{
+		return static_cast<sf::Vector2f>(coords - sf::Vector2f(0.5f, 0.5f)) *  (WINDOW_HEIGHT / 9.0f);
+	}
+
 	std::unique_ptr<Enemy> EnemyFactory::createEnemy(const EnemyType& type)
 	{
 		//TODO: file loading
-		if (type == EnemyType::RUNNER) return std::make_unique<Runner>(50, 30, 10, 40, std::string("ff0000"));
-		if (type == EnemyType::WALKER) return std::make_unique<Walker>(50, 30, 10, 40, std::string("00ff00"));
-		if (type == EnemyType::TANK) return std::make_unique<Tank>(50, 30, 10, 40, std::string("0000ff"));
-		if (type == EnemyType::BOSS) return std::make_unique<Boss>(50, 30, 10, 40, std::string("000000"));
+		if (type == EnemyType::RUNNER) return std::make_unique<Runner>(50, 30, 0.15f, 40, std::string("ff0000"));
+		if (type == EnemyType::WALKER) return std::make_unique<Walker>(50, 30, 0.05f, 40, std::string("00ff00"));
+		if (type == EnemyType::TANK) return std::make_unique<Tank>(50, 30, 0.03f, 10, std::string("0000ff"));
+		if (type == EnemyType::BOSS) return std::make_unique<Boss>(50, 30, 0.02f, 50, std::string("000000"));
 		return nullptr;
 	}
 
@@ -34,57 +99,73 @@ namespace GameObjects
 
 	}
 
+	//No draw calls allowed as image buffer is cleared every frame
 	void Game::initialize(/*Difficulty dif*/)
 	{
+		//hack way fpr now
+		textures.push_back(loadTexture("Saules_sprites/Maps/map1_gp_complete.gif"));
+		textures.push_back(loadTexture("Saules_sprites/Enemies/robot_enemy1.gif"));
+
 		state = GameState::ROUND_INIT;
 
 		loadWaveDataFromFile();
 
 		//difficulty will be handled later
-		/*switch (dif)
 		{
-		case Difficulty::EASY:
-		{
-			gold = 1000;
-			centralFactoryHealth = 300;
-			startRoundDelay = 10;
+			/*switch (dif)
+			{
+			case Difficulty::EASY:
+			{
+				gold = 1000;
+				centralFactoryHealth = 300;
+				startRoundDelay = 10;
 
 
-			break;
+				break;
+			}
+			case Difficulty::MEDIUM:
+			{
+				gold = 500;
+				centralFactoryHealth = 200;
+				startRoundDelay = 7;
+
+
+				break;
+			};
+			case Difficulty::HARD:
+			{
+				gold = 200;
+				centralFactoryHealth = 150;
+				startRoundDelay = 4;
+
+
+				break;
+			};
+			case Difficulty::INFINTE:
+			{
+				gold = 300;
+				centralFactoryHealth = 300;
+				startRoundDelay = 5;
+
+
+				break;
+			};
+			}*/
 		}
-		case Difficulty::MEDIUM:
-		{
-			gold = 500;
-			centralFactoryHealth = 200;
-			startRoundDelay = 7;
-
-
-			break;
-		};
-		case Difficulty::HARD:
-		{
-			gold = 200;
-			centralFactoryHealth = 150;
-			startRoundDelay = 4;
-
-
-			break;
-		};
-		case Difficulty::INFINTE:
-		{
-			gold = 300;
-			centralFactoryHealth = 300;
-			startRoundDelay = 5;
-
-
-			break;
-		};
-		}*/
 	}
 
 	//info hardcoded for now
 	void Game::loadWaveDataFromFile()
 	{
+		pathPoints.push_back({ 16, 2 }); //start
+		pathPoints.push_back({ 2, 2 });
+		pathPoints.push_back({ 2, 8 });
+		pathPoints.push_back({ 15, 8 });
+		pathPoints.push_back({ 15, 4 });
+		pathPoints.push_back({ 4, 4 });
+		pathPoints.push_back({ 4, 6 });
+		pathPoints.push_back({ 12, 6 }); //end
+
 		waves.resize(3);
 
 		// Wave 1
@@ -92,16 +173,16 @@ namespace GameObjects
 		waves[0].push_back({ 5, EnemyType::WALKER, 1.0f, 3 });
 
 		// Wave 2
-		waves[1].push_back({ 4, EnemyType::TANK, 2.0f, 5 });
-		waves[1].push_back({ 6, EnemyType::WALKER, 0.4f, 5 });
+		waves[1].push_back({ 3, EnemyType::TANK, 2.0f, 5 });
+		waves[1].push_back({ 5, EnemyType::WALKER, 0.4f, 5 });
 
 		// Wave 3
-		waves[2].push_back({ 3, EnemyType::BOSS, 3.0f, 10 });
-		waves[2].push_back({ 7, EnemyType::RUNNER, 0.3f, 10 });
+		waves[2].push_back({ 1, EnemyType::BOSS, 3.0f, 10 });
+		waves[2].push_back({ 15, EnemyType::RUNNER, 0.3f, 10000 });
 
 		gold = 1000;
 		centralFactoryHealth = 300;
-		startRoundDelay = 5;
+		startRoundDelay = 2;
 	}
 
 	void Game::loadRoundWaveData(int waveNum)
@@ -143,12 +224,12 @@ namespace GameObjects
 			towers.push_back(std::move(tower));
 		}
 	}
-	void Game::drawGrid(sf::RenderWindow& win, int rows, int cols) {
+	void Game::drawGrid(int rows, int cols) {
 		// initialize values
 		int numLines = rows + cols - 2;
 		sf::VertexArray grid(sf::PrimitiveType::Lines, 2 * (numLines));
-		win.setView(win.getDefaultView());
-		auto size = win.getView().getSize();
+		(*window).setView((*window).getDefaultView());
+		auto size = (*window).getView().getSize();
 		float rowH = size.y / rows;
 		float colW = size.x / cols;
 		// row separators
@@ -166,10 +247,11 @@ namespace GameObjects
 			grid[i * 2 + 1].position = { colX, size.y };
 		}
 		// draw it
-		win.draw(grid);
+		(*window).draw(grid);
 	}
 	void Game::update()
 	{
+		renderBackground();
 		processEnemyData();
 		processTowerData();
 
@@ -177,7 +259,7 @@ namespace GameObjects
 		{
 			state = GameState::ROUND_INIT;
 		}
-		if ((roundNumber > 3 && spawnQueue.empty()) || centralFactoryHealth == 0)
+		if ((roundNumber > 3 && spawnQueue.empty() && enemies.empty()) || centralFactoryHealth <= 0)
 		{
 			state = GameState::GAME_OVER;
 		}
@@ -187,6 +269,7 @@ namespace GameObjects
 			state = GameState::ROUND_ACTION;
 			roundNumber++;
 		}
+
 
 		if (state == GameState::ROUND_ACTION)
 		{
@@ -201,14 +284,22 @@ namespace GameObjects
 
 	void Game::processEnemyData()
 	{
-		for (const auto& enemy : enemies)
+		for (auto it = enemies.begin(); it != enemies.end();)
 		{
-			enemy->progressInPath += enemy->speed * deltaTime;
+			auto& enemy = **it;
+			auto transformationResult = interpolatePath(pathPoints, enemy.progressInPath);
+			enemy.progressInPath += enemy.speed * deltaTime;
+			renderImage(textures[1], GameToWindowCoords(transformationResult.first), transformationResult.second);
 
-			if (enemy->progressInPath >= 1.0f)
+			if (enemy.progressInPath >= 1.0f)
 			{
-				;//centralFactoryHealth -= enemy->damage;
-				//delete enemy
+				centralFactoryHealth -= enemy.damage;
+				std::cout << "hit! Health = " << centralFactoryHealth << "\n";
+				it = enemies.erase(it);
+			}
+			else
+			{
+				++it;
 			}
 		}
 	}
@@ -219,6 +310,55 @@ namespace GameObjects
 		{
 
 		}
+	}
+	void Game::renderBackground()
+	{
+		sf::Vector2u windowSize = (*window).getSize();
+		sf::Sprite windowSprite = sf::Sprite(textures[0]);
+		sf::Vector2u textureSize = textures[0].getSize();
+
+		float scale = std::min(float(windowSize.x) / textureSize.x, float(windowSize.y) / textureSize.y);
+		textureScale = scale;
+
+		windowSprite.setScale(sf::Vector2f(scale, scale));
+
+		(*window).draw(windowSprite);
+	}
+
+	sf::Texture& Game::loadTexture(const std::filesystem::path& filename)
+	{
+		auto it = textureCache.find(filename);
+		if (it != textureCache.end())
+		{
+			return it->second;
+		}
+
+		sf::Texture texture;
+		if (!texture.loadFromFile(filename))
+		{
+			throw std::runtime_error("Failed to load texture from file: " + filename.string());
+		}
+
+		textureCache[filename] = std::move(texture);
+		return textureCache[filename];
+	}
+
+	void Game::renderImage(sf::Texture texture, std::optional<sf::Vector2f> pos, std::optional<float> rotDeg)
+	{
+		sf::Sprite sprite = sf::Sprite(texture);
+
+		sprite.setScale(sf::Vector2f(textureScale, textureScale));
+
+		if (pos.has_value())
+		{
+			sprite.setPosition(pos.value());
+		}
+		if (rotDeg.has_value())
+		{
+			sprite.setOrigin(sprite.getLocalBounds().getCenter());
+			sprite.setRotation(sf::degrees(rotDeg.value()));
+		}
+		(*window).draw(sprite);
 	}
 
 	void Game::end()

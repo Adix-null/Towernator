@@ -20,6 +20,9 @@ namespace GameObjects
 	enum class Difficulty { HARD, MEDIUM, EASY, INFINITE };
 	enum class GameState { MENU, PAUSE, ROUND_INIT, ROUND_ACTION, GAME_OVER };
 
+	constexpr int WINDOW_WIDTH = 2220 / 2;
+	constexpr int WINDOW_HEIGHT = 1080 / 2;
+
 	struct WaveEnemyData
 	{
 		int enemyCount;
@@ -133,12 +136,16 @@ namespace GameObjects
 		int centralFactoryHealth = 0;
 		int score = 0;
 		enum GameState state = GameState::MENU;
+		std::queue<SpawnEvent> spawnQueue;
+		std::vector<sf::Vector2i> pathPoints;
+		std::unordered_map<std::filesystem::path, sf::Texture> textureCache;
+
 
 		std::vector<std::unique_ptr<Tower>> towers;
 		std::vector<std::unique_ptr<Enemy>> enemies;
-		std::queue<SpawnEvent> spawnQueue;
 		float deltaTime = 0;
 		float elapsedTime = 0;
+		sf::RenderWindow* window = nullptr;
 
 		void spawnEnemy(EnemyType type);
 		void spawnTower(TowerType type);
@@ -152,7 +159,13 @@ namespace GameObjects
 		void loadRoundWaveData(int waveNum);
 		void processEnemyData();
 		void processTowerData();
-		void drawGrid(sf::RenderWindow& win, int rows, int cols);
+		void renderBackground();
+		sf::Texture& loadTexture(const std::filesystem::path& filename);
+		void renderImage(sf::Texture texture, std::optional<sf::Vector2f> pos, std::optional<float> rot);
+		void drawGrid(int rows, int cols);
+		std::vector<sf::Texture> textures;
+		float textureScale = 1;
+		sf::Vector2f GameToWindowCoords(sf::Vector2f coords) const;
 	};
 
 }
