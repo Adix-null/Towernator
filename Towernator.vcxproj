@@ -155,12 +155,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="GameObjects.cpp" />
+    <ClCompile Include="HelperFunctions.cpp" />
+    <ClCompile Include="ImageManager.cpp" />
     <ClCompile Include="imgui\imgui-SFML.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_draw.cpp" />
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
+    <ClCompile Include="IODataManager.cpp" />
+    <ClCompile Include="Tests.cpp" />
+    <ClCompile Include="Tower.cpp" />
     <ClCompile Include="Towernator.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -177,6 +183,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\Pictures\test_tile.png" />
+    <Content Include="**\*.gif" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

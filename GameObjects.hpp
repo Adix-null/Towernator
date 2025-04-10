@@ -10,8 +10,11 @@
 #include <memory>
 #include <vector>
 #include <unordered_map>
-#include <SFML/Graphics.hpp>
 #include <queue>
+#include <iostream>
+#include <functional>
+#include <math.h>
+#include <SFML/Graphics.hpp>
 
 namespace GameObjects
 {
@@ -107,8 +110,6 @@ namespace GameObjects
 	class TowerSpot : public Tile { using Tile::Tile; };
 	class EnemyPath : public Tile { using Tile::Tile; };
 
-
-
 	class Game
 	{
 	private:
@@ -123,7 +124,6 @@ namespace GameObjects
 		Game(const Game&) = delete;
 		void operator=(const Game&) = delete;
 
-		float enemyToughnessMultiplierFunction(int roundNumber);
 		float levelDifficultyMultiplier = 1.0;
 
 		//Enemy wave info data
@@ -138,14 +138,15 @@ namespace GameObjects
 		enum GameState state = GameState::MENU;
 		std::queue<SpawnEvent> spawnQueue;
 		std::vector<sf::Vector2i> pathPoints;
-		std::unordered_map<std::filesystem::path, sf::Texture> textureCache;
-
 
 		std::vector<std::unique_ptr<Tower>> towers;
 		std::vector<std::unique_ptr<Enemy>> enemies;
 		float deltaTime = 0;
 		float elapsedTime = 0;
 		sf::RenderWindow* window = nullptr;
+
+		std::unordered_map<std::string, sf::Texture> textureCache;
+		float textureScale = 1;
 
 		void spawnEnemy(EnemyType type);
 		void spawnTower(TowerType type);
@@ -159,13 +160,17 @@ namespace GameObjects
 		void loadRoundWaveData(int waveNum);
 		void processEnemyData();
 		void processTowerData();
-		void renderBackground();
-		sf::Texture& loadTexture(const std::filesystem::path& filename);
+		void renderBackground(sf::Texture texture);
+		void loadTextureIntoBuffer(const std::filesystem::path& filename);
 		void renderImage(sf::Texture texture, std::optional<sf::Vector2f> pos, std::optional<float> rot);
 		void drawGrid(int rows, int cols);
-		std::vector<sf::Texture> textures;
-		float textureScale = 1;
-		sf::Vector2f GameToWindowCoords(sf::Vector2f coords) const;
+
 	};
 
+	sf::Vector2f lerp(const sf::Vector2f& start, const sf::Vector2f& end, float t);
+	float dist(const sf::Vector2f& a, const sf::Vector2f& b);
+	std::pair<sf::Vector2f, float> interpolatePath(const std::vector<sf::Vector2i>& points, float t);
+	sf::Vector2f interpolatePosition(std::vector<sf::Vector2i>& points, float t);
+	sf::Vector2f GameToWindowCoords(sf::Vector2f coords, int gameTilemapHeight);
+	float enemyToughnessMultiplierFunction(int roundNumber);
 }
