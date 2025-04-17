@@ -30,7 +30,7 @@ namespace GameObjects
 
 		gold = 1000;
 		centralFactoryHealth = 1300;
-		startRoundDelay = 2;
+		startRoundDelay = 0;
 	}
 
 	void Game::loadRoundWaveData(int waveNum)

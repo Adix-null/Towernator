@@ -1,4 +1,5 @@
 #include "GameObjects.hpp"
+#include <regex>
 
 namespace GameObjects
 {
