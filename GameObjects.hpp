@@ -46,12 +46,12 @@ namespace GameObjects
 		int damage;				//damage to central factory
 		float speed;			//path progress every made every second, 0-1
 		int reward;				//reward in coins for a kill
-		std::string color;
+		const std::string& path;
 		float progressInPath;	//how close the enemy is to the central factory (0 - start, 1 - factory)
 
 		//Constructor
-		Enemy(int hlt, int dmg, float spd, int rew, const std::string& c)
-			: health(hlt), damage(dmg), speed(spd), reward(rew), color(c), progressInPath(0) {
+		Enemy(int hlt, int dmg, float spd, int rew, const std::string& path)
+			: health(hlt), damage(dmg), speed(spd), reward(rew), path(path), progressInPath(0) {
 		}
 		virtual ~Enemy() = default;
 	};
@@ -110,6 +110,25 @@ namespace GameObjects
 	class TowerSpot : public Tile { using Tile::Tile; };
 	class EnemyPath : public Tile { using Tile::Tile; };
 
+	struct Frame
+	{
+		std::string path;
+		float delay;
+	};
+
+	class GifAnimator
+	{
+	public:
+		void load(const std::string& folderPath);
+		void update(float deltaTime);
+		void render(const sf::Vector2f& position, std::optional<float> rotDeg);
+
+		std::vector<Frame> frames;
+		std::unordered_map<std::string, sf::Texture> sharedTextureCache;
+		std::size_t currentFrame = 0;
+		float elapsed = 0.0f;
+	};
+
 	class Game
 	{
 	private:
@@ -165,7 +184,10 @@ namespace GameObjects
 		void renderImage(sf::Texture texture, std::optional<sf::Vector2f> pos, std::optional<float> rot);
 		void drawGrid(int rows, int cols);
 
+		std::vector<GifAnimator> animators;
 	};
+
+
 
 	sf::Vector2f lerp(const sf::Vector2f& start, const sf::Vector2f& end, float t);
 	float dist(const sf::Vector2f& a, const sf::Vector2f& b);

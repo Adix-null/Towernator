@@ -9,8 +9,11 @@ namespace GameObjects
 
 	void Game::initialize(/*Difficulty dif*/)
 	{
+		GifAnimator a1;
+		a1.load("Saules_sprites/Enemies/robot_enemy1");
+		animators.push_back(a1);
+
 		loadTextureIntoBuffer("Saules_sprites/Maps/map1_gp_complete.gif");
-		loadTextureIntoBuffer("Saules_sprites/Enemies/robot_enemy1.gif");
 
 		state = GameState::ROUND_INIT;
 
@@ -22,6 +25,9 @@ namespace GameObjects
 		renderBackground(textureCache.at("Saules_sprites/Maps/map1_gp_complete.gif"));
 		processEnemyData();
 		processTowerData();
+
+		for (auto& anim : animators)
+			anim.update(deltaTime);
 
 		if (spawnQueue.empty())
 		{
@@ -61,7 +67,9 @@ namespace GameObjects
 			auto& enemy = **it;
 			auto transformationResult = GameObjects::interpolatePath(pathPoints, enemy.progressInPath);
 			enemy.progressInPath += enemy.speed * deltaTime;
-			renderImage(textureCache.at("Saules_sprites/Enemies/robot_enemy1.gif"), GameToWindowCoords(transformationResult.first, WINDOW_HEIGHT), transformationResult.second);
+			//switch (enemy.)
+
+			animators[0].render(GameToWindowCoords(transformationResult.first, WINDOW_HEIGHT), transformationResult.second);
 
 			if (enemy.progressInPath >= 1.0f)
 			{
