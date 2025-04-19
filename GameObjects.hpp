@@ -15,6 +15,7 @@
 #include <functional>
 #include <math.h>
 #include <SFML/Graphics.hpp>
+#include <SFML/System/Vector2.hpp>
 
 namespace GameObjects
 {
@@ -75,10 +76,12 @@ namespace GameObjects
 		float rateOfFire;
 		float range;
 		std::string color;
+		sf::Vector2f position;
+		float rotation = 0.0f;
 
 		//Constructor
-		Tower(int prc, int dmg, float rof, float rng, const std::string& c)
-			: price(prc), damagePerBullet(dmg), rateOfFire(rof), range(rng), color(c) {
+		Tower(int prc, int dmg, float rof, float rng, const std::string& c, const sf::Vector2f& pos)
+			: price(prc), damagePerBullet(dmg), rateOfFire(rof), range(rng), color(c), rotation(0.0f), position(pos) {
 		}
 		virtual ~Tower() = default;
 	};
@@ -86,7 +89,7 @@ namespace GameObjects
 	class TowerFactory
 	{
 	public:
-		static std::unique_ptr<Tower> createTower(const TowerType& type);
+		static std::unique_ptr<Tower> createTower(const TowerType& type, const sf::Vector2f& position);
 	};
 
 	class Fast : public Tower { using Tower::Tower; };
@@ -149,7 +152,7 @@ namespace GameObjects
 		float textureScale = 1;
 
 		void spawnEnemy(EnemyType type);
-		void spawnTower(TowerType type);
+		void spawnTower(TowerType type, const sf::Vector2f& pos);
 
 		void togglePause(bool gamePaused);
 		void initialize(/*GameObjects::Difficulty dif*/);

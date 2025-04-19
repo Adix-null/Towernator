@@ -80,7 +80,34 @@ namespace GameObjects
 	{
 		for (const auto& tower : towers)
 		{
-			;
+			const sf::Vector2f& towerPos = tower->position;
+
+			Enemy* bestTarget = nullptr;
+			float maxProgress = -1.0f;
+
+			for (const auto& enemy : enemies)
+			{
+				sf::Vector2f enemyPos = interpolatePosition(pathPoints, enemy->progressInPath);
+
+				if (dist(towerPos, enemyPos) <= tower->range)
+				{
+					if (enemy->progressInPath > maxProgress)
+					{
+						maxProgress = enemy->progressInPath;
+						bestTarget = enemy.get();
+					}
+				}
+			}
+
+			if (bestTarget)
+			{
+				sf::Vector2f enemyPos = interpolatePosition(pathPoints, bestTarget->progressInPath);
+				sf::Vector2f direction = enemyPos - towerPos;
+				float angleRadians = std::atan2(direction.y, direction.x);
+				float angleDegrees = angleRadians * 180.0f / 3.14159f;
+
+				tower->rotation = angleDegrees;
+			}
 		}
 	}
 
