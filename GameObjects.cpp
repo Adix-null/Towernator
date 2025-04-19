@@ -11,6 +11,7 @@ namespace GameObjects
 	{
 		loadTextureIntoBuffer("Saules_sprites/Maps/map1_gp_complete.gif");
 		loadTextureIntoBuffer("Saules_sprites/Enemies/robot_enemy1.gif");
+		loadTextureIntoBuffer("Saules_sprites/Towers/fast_tower.gif");
 
 		state = GameState::ROUND_INIT;
 
@@ -22,6 +23,7 @@ namespace GameObjects
 		renderBackground(textureCache.at("Saules_sprites/Maps/map1_gp_complete.gif"));
 		processEnemyData();
 		processTowerData();
+		renderTowerData();
 
 		if (spawnQueue.empty())
 		{
@@ -78,6 +80,9 @@ namespace GameObjects
 
 	void Game::processTowerData()
 	{
+		static float lastPrintTime = 0.0f;
+		float printInterval = 1.5f; // seconds between prints
+
 		for (const auto& tower : towers)
 		{
 			const sf::Vector2f& towerPos = tower->position;
@@ -89,7 +94,7 @@ namespace GameObjects
 			{
 				sf::Vector2f enemyPos = interpolatePosition(pathPoints, enemy->progressInPath);
 
-				if (dist(towerPos, enemyPos) <= tower->range)
+				if (dist(towerPos, enemyPos) <= tower->range * 32.0f)
 				{
 					if (enemy->progressInPath > maxProgress)
 					{
@@ -107,9 +112,34 @@ namespace GameObjects
 				float angleDegrees = angleRadians * 180.0f / 3.14159f;
 
 				tower->rotation = angleDegrees;
+
+				if (elapsedTime - lastPrintTime >= printInterval)
+				{
+					std::cout << "Tower at (" << towerPos.x << ", " << towerPos.y << ") targeting enemy at ("
+						<< enemyPos.x << ", " << enemyPos.y << "), Rotation: " << angleDegrees << "°\n";
+
+					std::cout << "Checking distance from tower at " << towerPos.x << ", " << towerPos.y
+						<< " to enemy at " << enemyPos.x << ", " << enemyPos.y
+						<< " = " << dist(towerPos, enemyPos) << "\n";
+
+					lastPrintTime = elapsedTime;
+				}
 			}
 		}
 	}
+
+	void Game::renderTowerData()
+	{
+		for (const auto& tower : towers)
+		{
+			renderImage(
+				textureCache.at("Saules_sprites/Towers/fast_tower.gif"), // Pick texture based on tower type if needed
+				tower->position,
+				tower->rotation
+			);
+		}
+	}
+
 
 	void Game::end()
 	{

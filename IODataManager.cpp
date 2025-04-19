@@ -55,6 +55,13 @@ namespace GameObjects
 		}
 	}
 
+	void Game::placeTestTower()
+	{
+		sf::Vector2f pos(4 * 32.0f + 16.0f, 8 * 32.0f + 16.0f);
+		spawnTower(TowerType::FAST, pos);
+		std::cout << "Placed FAST tower at (" << pos.x << ", " << pos.y << ")\n";
+	}
+
 	//difficulty will be handled later
 
 		/*switch (dif)
