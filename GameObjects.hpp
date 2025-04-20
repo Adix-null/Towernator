@@ -162,9 +162,11 @@ namespace GameObjects
 		void loadWaveDataFromFile();
 		void loadRoundWaveData(int waveNum);
 		void placeTestTower();
-		void renderTowerData();
 		void processEnemyData();
 		void processTowerData();
+
+		void renderEnemyData();
+		void renderTowerData();
 		void renderBackground(sf::Texture texture);
 		void loadTextureIntoBuffer(const std::filesystem::path& filename);
 		void renderImage(sf::Texture texture, std::optional<sf::Vector2f> pos, std::optional<float> rot);
