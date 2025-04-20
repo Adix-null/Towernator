@@ -11,6 +11,7 @@ namespace GameObjects
 	{
 		loadTextureIntoBuffer("Saules_sprites/Maps/map1_gp_complete.gif");
 		loadTextureIntoBuffer("Saules_sprites/Enemies/robot_enemy1.gif");
+		loadTextureIntoBuffer("Saules_sprites/Towers/fast_tower.gif");
 
 		state = GameState::ROUND_INIT;
 
@@ -22,6 +23,8 @@ namespace GameObjects
 		renderBackground(textureCache.at("Saules_sprites/Maps/map1_gp_complete.gif"));
 		processEnemyData();
 		processTowerData();
+		renderEnemyData();
+		renderTowerData();
 
 		if (spawnQueue.empty())
 		{
@@ -51,36 +54,6 @@ namespace GameObjects
 				spawnEnemy(event.type);
 				spawnQueue.pop();
 			}
-		}
-	}
-
-	void Game::processEnemyData()
-	{
-		for (auto it = enemies.begin(); it != enemies.end();)
-		{
-			auto& enemy = **it;
-			auto transformationResult = GameObjects::interpolatePath(pathPoints, enemy.progressInPath);
-			enemy.progressInPath += enemy.speed * deltaTime;
-			renderImage(textureCache.at("Saules_sprites/Enemies/robot_enemy1.gif"), GameToWindowCoords(transformationResult.first, WINDOW_HEIGHT), transformationResult.second);
-
-			if (enemy.progressInPath >= 1.0f)
-			{
-				centralFactoryHealth -= enemy.damage;
-				std::cout << "hit! Health = " << centralFactoryHealth << "\n";
-				it = enemies.erase(it);
-			}
-			else
-			{
-				++it;
-			}
-		}
-	}
-
-	void Game::processTowerData()
-	{
-		for (const auto& tower : towers)
-		{
-			;
 		}
 	}
 

@@ -20,4 +20,34 @@ namespace GameObjects
 			std::cout << "Spawned " << static_cast<int>(type) << " enemy\n";
 		}
 	}
+
+	void Game::processEnemyData()
+	{
+		for (auto it = enemies.begin(); it != enemies.end();)
+		{
+			auto& enemy = **it;
+			enemy.progressInPath += enemy.speed * deltaTime;
+
+			if (enemy.progressInPath >= 1.0f)
+			{
+				centralFactoryHealth -= enemy.damage;
+				std::cout << "hit! Health = " << centralFactoryHealth << "\n";
+				it = enemies.erase(it);
+			}
+			else
+			{
+				++it;
+			}
+		}
+	}
+
+	void Game::renderEnemyData()
+	{
+		for (auto it = enemies.begin(); it != enemies.end(); ++it)
+		{
+			auto& enemy = **it;
+			auto transformationResult = GameObjects::interpolatePath(pathPoints, enemy.progressInPath);
+			renderImage(textureCache.at("Saules_sprites/Enemies/robot_enemy1.gif"), GameToWindowCoords(transformationResult.first, WINDOW_HEIGHT), transformationResult.second);
+		}
+	}
 }
