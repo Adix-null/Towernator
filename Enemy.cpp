@@ -47,7 +47,7 @@ namespace GameObjects
 		{
 			auto& enemy = **it;
 			auto transformationResult = GameObjects::interpolatePath(pathPoints, enemy.progressInPath);
-			renderImage(textureCache.at("Saules_sprites/Enemies/robot_enemy1.gif"), GameToWindowCoords(transformationResult.first, WINDOW_HEIGHT), transformationResult.second);
+			animators[0].render(GameToWindowCoords(transformationResult.first, WINDOW_HEIGHT), transformationResult.second);
 		}
 	}
 }

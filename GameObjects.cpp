@@ -64,39 +64,6 @@ namespace GameObjects
 		}
 	}
 
-	void Game::processEnemyData()
-	{
-		for (auto it = enemies.begin(); it != enemies.end();)
-		{
-			auto& enemy = **it;
-			auto transformationResult = GameObjects::interpolatePath(pathPoints, enemy.progressInPath);
-			enemy.progressInPath += enemy.speed * deltaTime;
-			//switch (enemy.)
-
-			animators[0].render(GameToWindowCoords(transformationResult.first, WINDOW_HEIGHT), transformationResult.second);
-
-			if (enemy.progressInPath >= 1.0f)
-			{
-				centralFactoryHealth -= enemy.damage;
-				std::cout << "hit! Health = " << centralFactoryHealth << "\n";
-				it = enemies.erase(it);
-			}
-			else
-			{
-				++it;
-			}
-		}
-	}
-
-	void Game::processTowerData()
-	{
-		for (const auto& tower : towers)
-		{
-			;
-		}
-	}
-
-
 	void Game::end()
 	{
 		std::cout << "Game over! Score: " << score << "\n";
