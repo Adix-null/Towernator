@@ -56,7 +56,7 @@ namespace GameObjects
 	sf::Vector2f interpolatePosition(std::vector<sf::Vector2i>& points, float t)
 	{
 		t = std::clamp(t, 0.0f, 1.0f);
-		return lerp(static_cast<sf::Vector2f>(points.front()), static_cast<sf::Vector2f>(points.back()), t);
+		return interpolatePath(points, t).first; // actual curved movement
 	}
 
 	sf::Vector2f GameToWindowCoords(sf::Vector2f coords, int gameTilemapHeight)

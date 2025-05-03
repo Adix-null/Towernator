@@ -14,6 +14,8 @@ namespace GameObjects
 		animators.push_back(a1);
 
 		loadTextureIntoBuffer("Saules_sprites/Maps/map1_gp_complete.gif");
+		loadTextureIntoBuffer("Saules_sprites/Enemies/robot_enemy1.gif");
+		loadTextureIntoBuffer("Saules_sprites/Towers/fast_tower.gif");
 
 		state = GameState::ROUND_INIT;
 
@@ -25,6 +27,8 @@ namespace GameObjects
 		renderBackground(textureCache.at("Saules_sprites/Maps/map1_gp_complete.gif"));
 		processEnemyData();
 		processTowerData();
+		renderEnemyData();
+		renderTowerData();
 
 		for (auto& anim : animators)
 			anim.update(deltaTime);
@@ -91,6 +95,7 @@ namespace GameObjects
 			;
 		}
 	}
+
 
 	void Game::end()
 	{

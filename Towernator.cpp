@@ -16,6 +16,7 @@ int main()
 	game.window = &window;
 
 	game.initialize(/*GameObjects::Difficulty::EASY*/);
+	game.placeTestTower();
 
 	sf::Clock deltaClock;
 	sf::Clock masterClock;
