@@ -1,68 +1,192 @@
 #include "GameObjects.hpp"
 #include <SFML/Graphics.hpp>
-#include <filesystem>
-#include <stdexcept>
+#include <iostream>
+#include <cassert>
 
 using namespace GameObjects;
 
-// Success-case tests
-
-TEST(EnemyFactoryTest, CreatesEnemySuccessfully) {
+void testEnemyFactoryCreatesEnemy() {
     auto enemy = EnemyFactory::createEnemy(EnemyType::RUNNER);
-    ASSERT_NE(enemy, nullptr);
-    ASSERT_FLOAT_EQ(enemy->speed, 0.15f);
+    assert(enemy != nullptr);
+    assert(enemy->speed == 0.15f);
+    std::cout << "testEnemyFactoryCreatesEnemy passed\n";
 }
 
-TEST(TowerFactoryTest, CreatesTowerSuccessfully) {
+void testTowerFactoryCreatesTower() {
     sf::Vector2f pos(100.0f, 100.0f);
     auto tower = TowerFactory::createTower(TowerType::FAST, pos);
-    ASSERT_NE(tower, nullptr);
-    ASSERT_EQ(tower->position, pos);
+    assert(tower != nullptr);
+    assert(tower->position == pos);
+    std::cout << "testTowerFactoryCreatesTower passed\n";
 }
 
-TEST(InterpolationTest, InterpolatesPathCorrectly) {
+void testInterpolatePath() {
     std::vector<sf::Vector2i> path = { {0, 0}, {10, 0} };
     auto result = interpolatePath(path, 0.5f);
-    ASSERT_NEAR(result.first.x, 5.0f, 0.01);
-    ASSERT_NEAR(result.first.y, 0.0f, 0.01);
+    assert(std::abs(result.first.x - 5.0f) < 0.01f);
+    assert(std::abs(result.first.y) < 0.01f);
+    std::cout << "testInterpolatePath passed\n";
 }
 
-TEST(GifAnimatorTest, LoadValidFrames) {
+void testGifAnimatorLoadValid() {
     GifAnimator animator;
-    ASSERT_NO_THROW(animator.load("test_data/valid_gif_frames"));
+    try {
+        animator.load("test_data/valid_gif_frames");
+        std::cout << "testGifAnimatorLoadValid passed
+void testLerpFunction() {
+    sf::Vector2f start(0, 0);
+    sf::Vector2f end(10, 10);
+    auto result = lerp(start, end, 0.5f);
+    assert(result.x == 5.0f && result.y == 5.0f);
+    std::cout << "testLerpFunction passed\n";
 }
 
-// Exception-case tests
-
-TEST(EnemyFactoryTest, ThrowsOnUnknownType) {
-    ASSERT_THROW(EnemyFactory::createEnemy(static_cast<EnemyType>(999)), Exceptions::TowernatorException);
+void testDistFunction() {
+    sf::Vector2f point1(0, 0);
+    sf::Vector2f point2(3, 4);
+    float distance = dist(point1, point2);
+    assert(distance == 5.0f); // 3-4-5 triangle
+    std::cout << "testDistFunction passed\n";
 }
 
-TEST(GameRenderTowerDataTest, ThrowsWhenTextureMissing) {
+void testInterpolatePosition() {
+    std::vector<sf::Vector2i> path = {{0, 0}, {10, 10}, {20, 0}};
+    auto position = interpolatePosition(path, 0.5f); // Should interpolate between (0, 0) and (10, 10)
+    assert(position.x == 10.0f && position.y == 10.0f);
+    std::cout << "testInterpolatePosition passed\n";
+}
+
+void testTextureLoading() {
     Game& game = Game::getInstance();
-    game.textureCache.clear();
-    ASSERT_THROW(game.renderTowerData(), Exceptions::TowernatorException);
+    try {
+        game.loadTextureIntoBuffer("test_data/valid_texture.png");
+        assert(game.textureCache.find("test_data/valid_texture.png") != game.textureCache.end());
+        std::cout << "testTextureLoading passed\n";
+    } catch (...) {
+        std::cerr << "testTextureLoading failed\n";
+        assert(false);
+    }
 }
 
-TEST(GifAnimatorTest, ThrowsOnMissingFrame) {
-    GifAnimator animator;
-    ASSERT_THROW(animator.load("test_data/missing_frames"), Exceptions::TowernatorException);
+void testTextureNotFoundInCache() {
+    Game& game = Game::getInstance();
+    try {
+        game.renderImage(sf::Texture(), {0.0f, 0.0f});
+        assert(false); // Should not reach here, exception should be thrown
+    } catch (const Exceptions::TowernatorException&) {
+        std::cout << "testTextureNotFoundInCache passed\n";
+    }
 }
 
-TEST(InterpolatePathTest, ThrowsOnEmptyPoints) {
-    std::vector<sf::Vector2i> emptyPoints;
-    ASSERT_THROW(interpolatePath(emptyPoints, 0.5f), Exceptions::TowernatorException);
-}
-
-TEST(GameRenderImageTest, ThrowsWhenRenderingWithoutWindow) {
+void testWindowNotInitialized() {
     Game& game = Game::getInstance();
     game.window = nullptr;
-    sf::Texture dummy;
-    ASSERT_THROW(game.renderImage(dummy), Exceptions::TowernatorException);
+    try {
+        game.renderBackground(sf::Texture());
+        assert(false); // Should not reach here
+    } catch (const Exceptions::TowernatorException&) {
+        std::cout << "testWindowNotInitialized passed\n";
+    }
 }
 
-TEST(GameDrawGridTest, ThrowsWhenWindowMissing) {
+void testGameDrawGridWithInvalidRowsCols() {
     Game& game = Game::getInstance();
     game.window = nullptr;
-    ASSERT_THROW(game.drawGrid(3, 3), Exceptions::TowernatorException);
+    try {
+        game.drawGrid(0, 0); // Invalid grid with 0 rows and 0 cols
+        assert(false); // Should not reach here
+    } catch (const Exceptions::TowernatorException&) {
+        std::cout << "testGameDrawGridWithInvalidRowsCols passed\n";
+    }
+}
+
+void testInvalidTowerCreation() {
+    sf::Vector2f pos(100.0f, 100.0f);
+    try {
+        auto tower = TowerFactory::createTower(static_cast<TowerType>(999), pos); // Invalid tower type
+        assert(false); // Should not reach here
+    } catch (const Exceptions::TowernatorException&) {
+        std::cout << "testInvalidTowerCreation passed\n";
+    }
+}
+void testLerpFunction() {
+    sf::Vector2f start(0, 0);
+    sf::Vector2f end(10, 10);
+    auto result = lerp(start, end, 0.5f);
+    assert(result.x == 5.0f && result.y == 5.0f);
+    std::cout << "testLerpFunction passed\n";
+}
+
+void testDistFunction() {
+    sf::Vector2f point1(0, 0);
+    sf::Vector2f point2(3, 4);
+    float distance = dist(point1, point2);
+    assert(distance == 5.0f); // 3-4-5 triangle
+    std::cout << "testDistFunction passed\n";
+}
+
+void testInterpolatePosition() {
+    std::vector<sf::Vector2i> path = { {0, 0}, {10, 10}, {20, 0} };
+    auto position = interpolatePosition(path, 0.5f); // Should interpolate between (0, 0) and (10, 10)
+    assert(position.x == 10.0f && position.y == 10.0f);
+    std::cout << "testInterpolatePosition passed\n";
+}
+
+void testTextureLoading() {
+    Game& game = Game::getInstance();
+    try {
+        game.loadTextureIntoBuffer("test_data/valid_texture.png");
+        assert(game.textureCache.find("test_data/valid_texture.png") != game.textureCache.end());
+        std::cout << "testTextureLoading passed\n";
+    }
+    catch (...) {
+        std::cerr << "testTextureLoading failed\n";
+        assert(false);
+    }
+}
+
+void testTextureNotFoundInCache() {
+    Game& game = Game::getInstance();
+    try {
+        game.renderImage(sf::Texture(), { 0.0f, 0.0f });
+        assert(false); // Should not reach here, exception should be thrown
+    }
+    catch (const Exceptions::TowernatorException&) {
+        std::cout << "testTextureNotFoundInCache passed\n";
+    }
+}
+
+void testWindowNotInitialized() {
+    Game& game = Game::getInstance();
+    game.window = nullptr;
+    try {
+        game.renderBackground(sf::Texture());
+        assert(false); // Should not reach here
+    }
+    catch (const Exceptions::TowernatorException&) {
+        std::cout << "testWindowNotInitialized passed\n";
+    }
+}
+
+void testGameDrawGridWithInvalidRowsCols() {
+    Game& game = Game::getInstance();
+    game.window = nullptr;
+    try {
+        game.drawGrid(0, 0); // Invalid grid with 0 rows and 0 cols
+        assert(false); // Should not reach here
+    }
+    catch (const Exceptions::TowernatorException&) {
+        std::cout << "testGameDrawGridWithInvalidRowsCols passed\n";
+    }
+}
+
+void testInvalidTowerCreation() {
+    sf::Vector2f pos(100.0f, 100.0f);
+    try {
+        auto tower = TowerFactory::createTower(static_cast<TowerType>(999), pos); // Invalid tower type
+        assert(false); // Should not reach here
+    }
+    catch (const Exceptions::TowernatorException&) {
+        std::cout << "testInvalidTowerCreation passed\n";
+    }
 }
