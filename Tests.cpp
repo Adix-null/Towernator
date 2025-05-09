@@ -1,4 +1,3 @@
-#include "gtest/gtest.h"
 #include "GameObjects.hpp"
 #include <SFML/Graphics.hpp>
 #include <filesystem>
