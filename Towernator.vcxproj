@@ -166,7 +166,7 @@
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="IODataManager.cpp" />
-    <ClCompile Include="Tests.cpp" />
+    <ClCompile Include="Exceptions.cpp" />
     <ClCompile Include="Tower.cpp" />
     <ClCompile Include="Towernator.cpp" />
   </ItemGroup>

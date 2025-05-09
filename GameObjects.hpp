@@ -16,6 +16,7 @@
 #include <math.h>
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Vector2.hpp>
+#include "Exceptions.cpp"
 
 namespace GameObjects
 {
