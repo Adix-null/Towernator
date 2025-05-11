@@ -72,6 +72,7 @@ StyleCopReport.xml
 *.meta
 *.obj
 *.iobj
+*.recipe
 *.pch
 *.pdb
 *.ipdb
@@ -394,6 +395,7 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
-/Towernator/x64/Debug/vc143.idb
+
+/Towernator/
 /x64/Debug/Towernator.exe
-x64/Release/Towernator.exe
+/x64/Release/Towernator.exe
