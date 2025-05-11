@@ -9,7 +9,7 @@
 int main()
 {
 	//sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
-	sf::RenderWindow window(sf::VideoMode(sf::Vector2u(GameObjects::WINDOW_WIDTH, GameObjects::WINDOW_HEIGHT)), "Test window", sf::Style::Titlebar | sf::Style::Close);
+	sf::RenderWindow window(sf::VideoMode(sf::Vector2u(GameObjects::WINDOW_WIDTH, GameObjects::WINDOW_HEIGHT)), "Towernator Demo", sf::Style::Titlebar | sf::Style::Close);
 	ImGui::SFML::Init(window);
 
 	GameObjects::Game& game = GameObjects::Game::getInstance();
@@ -50,8 +50,44 @@ int main()
 		//if (io.DeltaTime <= 0.0f) io.DeltaTime = 0.00001f;
 		ImGui::SFML::Update(window, deltaClock.getElapsedTime());
 
-		ImGui::Begin("Window title");
-		ImGui::Text("Window text");
+		//menu screen
+		bool easyButtonClicked = false;
+		bool mediumButtonClicked = false;
+		bool hardButtonClicked = false;
+
+		ImGui::Begin("Menu");
+		if (ImGui::Button("EASY"))
+		{
+			std::cout << "The button has been clicked!\n"; //remove this later, used for debug
+			easyButtonClicked = true;
+		}
+		ImGui::Text("Start game with easy difficulty");
+		if (ImGui::Button("MEDIUM"))
+		{
+			std::cout << "This difficulty has not been implemented yet...\n"; //remove this later, used for debug
+			mediumButtonClicked = true;
+		}
+		if (mediumButtonClicked)
+		{
+			ImGui::Begin("Information");
+			ImGui::Text("This difficulty has not been implemented yet...");
+			ImGui::End();
+			mediumButtonClicked = false;
+		}
+		ImGui::Text("Start game with medium difficulty");
+		if (ImGui::Button("HARD"))
+		{
+			std::cout << "This difficulty has not been implemented yet...\n"; //remove this later, used for debug
+			hardButtonClicked = true;
+		}
+		if (hardButtonClicked)
+		{
+			ImGui::Begin("Information");
+			ImGui::Text("This difficulty has not been implemented yet...");
+			ImGui::End();
+			hardButtonClicked = false;
+		}
+		ImGui::Text("Start game with hard difficulty (good luck)");
 		ImGui::End();
 
 		//main loop will go here
