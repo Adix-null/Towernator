@@ -37,7 +37,13 @@ namespace GameObjects
 			if (enemy.progressInPath >= 1.0f)
 			{
 				centralFactoryHealth -= enemy.damage;
-				std::cout << "hit! Health = " << centralFactoryHealth << "\n";
+				std::cout << "hit! factory health = " << centralFactoryHealth << "\n";
+				it = enemies.erase(it);
+			}
+			else if (enemy.health <= 0)
+			{
+				gold += enemy.reward;
+				std::cout << "killed! gold = " << gold << "\n";
 				it = enemies.erase(it);
 			}
 			else

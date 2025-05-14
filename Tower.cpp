@@ -5,9 +5,9 @@ namespace GameObjects
 	std::unique_ptr<Tower> TowerFactory::createTower(const TowerType& type, const sf::Vector2f& position)
 	{
 		try {
-			if (type == TowerType::FAST) return std::make_unique<Fast>(100, 20, 2.0f, 3.0f, "880000", position);
-			if (type == TowerType::SPLASH) return std::make_unique<Splash>(200, 50, 0.75f, 2.5f, "008800", position);
-			if (type == TowerType::STREAM) return std::make_unique<Stream>(150, 2, 0.05f, 4.0f, "000088", position);
+			if (type == TowerType::FAST) return std::make_unique<Fast>(100, 20000, 2.0f, 3.0f, "880000", position);
+			if (type == TowerType::SPLASH) return std::make_unique<Splash>(200, 50000, 0.75f, 2.5f, "008800", position);
+			if (type == TowerType::STREAM) return std::make_unique<Stream>(150, 2000, 0.05f, 4.0f, "000088", position);
 
 			throw Exceptions::TowernatorException("Unknown tower type passed to createTower()");
 		}
@@ -61,6 +61,8 @@ namespace GameObjects
 
 					tower->rotation = angleDegrees - 90.0f;
 
+					(*tower).scanEnemies(bestTarget, deltaTime, tower->rateOfFire, tower->damagePerBullet);
+
 					if (elapsedTime - lastPrintTime >= printInterval)
 					{
 						try {
@@ -87,7 +89,6 @@ namespace GameObjects
 			std::cerr << "Unexpected error in processTowerData: " << e.what() << "\n";
 		}
 	}
-
 
 	void Game::renderTowerData()
 	{
@@ -118,6 +119,20 @@ namespace GameObjects
 		}
 		catch (const std::exception& e) {
 			std::cerr << "Unexpected error in renderTowerData: " << e.what() << "\n";
+		}
+	}
+
+	void Tower::scanEnemies(Enemy* target, float deltatime, float rateOfFire, float damage)
+	{
+		cooldown = std::max(cooldown - deltatime, 0.0f);
+		if (cooldown == 0 && target)
+		{
+			cooldown = rateOfFire;
+			target->health -= damage;
+
+			std::cout << "Shot fired, remaining enemy health: " << target->health << "\n";
+
+			//todo: render animations of shooting and hit
 		}
 	}
 }

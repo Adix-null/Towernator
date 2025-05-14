@@ -79,12 +79,15 @@ namespace GameObjects
 		std::string color;
 		sf::Vector2f position;
 		float rotation = 0.0f;
+		float cooldown = 0.0f;
 
 		//Constructor
 		Tower(int prc, int dmg, float rof, float rng, const std::string& c, const sf::Vector2f& pos)
 			: price(prc), damagePerBullet(dmg), rateOfFire(rof), range(rng), color(c), rotation(0.0f), position(pos) {
 		}
 		virtual ~Tower() = default;
+
+		void scanEnemies(Enemy* target, float deltatime, float rateOfFire, float damage);
 	};
 
 	class TowerFactory
@@ -96,23 +99,6 @@ namespace GameObjects
 	class Fast : public Tower { using Tower::Tower; };
 	class Splash : public Tower { using Tower::Tower; };
 	class Stream : public Tower { using Tower::Tower; };
-
-	class Tile
-	{
-	public:
-		int x, y;
-		std::string texture;
-
-		Tile(int xPos, int yPos, const std::string& c)
-			: x(xPos), y(yPos), texture(c) {
-		}
-
-		virtual ~Tile() = default;
-	};
-
-	class Background : public Tile { using Tile::Tile; };
-	class TowerSpot : public Tile { using Tile::Tile; };
-	class EnemyPath : public Tile { using Tile::Tile; };
 
 	struct Frame
 	{
