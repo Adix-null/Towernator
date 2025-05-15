@@ -34,11 +34,24 @@ namespace GameObjects
 			auto& enemy = **it;
 			enemy.progressInPath += enemy.speed * deltaTime;
 
+			if (enemy.health != 0)
+			{
+				if (enemy.hitDecal) {
+					enemy.hitDecal->update(deltaTime);
+					enemy.hitDecalElapsed += deltaTime;
+					if (enemy.hitDecal->currentFrame >= enemy.hitDecal->frames.size() || enemy.hitDecalElapsed >= decalTime) {
+						enemy.hitDecal.reset();
+						enemy.hitDecalElapsed = 0.0f;
+					}
+				}
+			}
+
 			if (enemy.progressInPath >= 1.0f)
 			{
 				centralFactoryHealth -= enemy.damage;
 				std::cout << "hit! factory health = " << centralFactoryHealth << "\n";
 				it = enemies.erase(it);
+				break;
 			}
 			else if (enemy.health <= 0)
 			{

@@ -46,10 +46,10 @@ namespace GameObjects
 			renderTowerData();
 
 			for (auto& anim : animators) {
-				anim.update(deltaTime);  
+				anim.update(deltaTime);
 			}
 
-			if (spawnQueue.empty()) {
+			if (spawnQueue.empty() && roundNumber <= waves.size()) {
 				state = GameState::ROUND_INIT;
 			}
 
@@ -58,7 +58,7 @@ namespace GameObjects
 			}
 
 			if (state == GameState::ROUND_INIT) {
-				if (roundNumber <= 0 || roundNumber > waves.size() + 1) {
+				if (roundNumber <= 0 || roundNumber > waves.size()) {
 					throw Exceptions::TowernatorException("Invalid round number: " + std::to_string(roundNumber));
 				}
 
@@ -87,6 +87,6 @@ namespace GameObjects
 
 	void Game::end()
 	{
-		std::cout << "Game over! Score: " << score << "\n";
+		std::cout << "Game over! Rounds survived: " << roundNumber << "\n";
 	}
 }

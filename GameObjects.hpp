@@ -40,6 +40,24 @@ namespace GameObjects
 		float spawnTime;  // Absolute time from gameplay start to spawn enemy
 		GameObjects::EnemyType type;
 	};
+	struct Frame
+	{
+		std::string path;
+		float delay;
+	};
+
+	class GifAnimator
+	{
+	public:
+		void load(const std::string& folderPath);
+		void update(float deltaTime);
+		void render(const sf::Vector2f& position, std::optional<float> rotDeg);
+
+		std::vector<Frame> frames;
+		std::unordered_map<std::string, sf::Texture> sharedTextureCache;
+		std::size_t currentFrame = 0;
+		float elapsed = 0.0f;
+	};
 
 	class Enemy
 	{
@@ -50,6 +68,9 @@ namespace GameObjects
 		int reward;				//reward in coins for a kill
 		const std::string& path;
 		float progressInPath;	//how close the enemy is to the central factory (0 - start, 1 - factory)
+
+		std::optional<GifAnimator> hitDecal;
+		float hitDecalElapsed = 0.0f;
 
 		//Constructor
 		Enemy(int hlt, int dmg, float spd, int rew, const std::string& path)
@@ -81,6 +102,9 @@ namespace GameObjects
 		float rotation = 0.0f;
 		float cooldown = 0.0f;
 
+		std::optional<GifAnimator> shootDecal;
+		float shootDecalElapsed = 0.0f;
+
 		//Constructor
 		Tower(int prc, int dmg, float rof, float rng, const std::string& c, const sf::Vector2f& pos)
 			: price(prc), damagePerBullet(dmg), rateOfFire(rof), range(rng), color(c), rotation(0.0f), position(pos) {
@@ -99,25 +123,6 @@ namespace GameObjects
 	class Fast : public Tower { using Tower::Tower; };
 	class Splash : public Tower { using Tower::Tower; };
 	class Stream : public Tower { using Tower::Tower; };
-
-	struct Frame
-	{
-		std::string path;
-		float delay;
-	};
-
-	class GifAnimator
-	{
-	public:
-		void load(const std::string& folderPath);
-		void update(float deltaTime);
-		void render(const sf::Vector2f& position, std::optional<float> rotDeg);
-
-		std::vector<Frame> frames;
-		std::unordered_map<std::string, sf::Texture> sharedTextureCache;
-		std::size_t currentFrame = 0;
-		float elapsed = 0.0f;
-	};
 
 	class Game
 	{
@@ -156,6 +161,7 @@ namespace GameObjects
 
 		std::unordered_map<std::string, sf::Texture> textureCache;
 		float textureScale = 1;
+		float decalTime = 0.33f;
 
 		void spawnEnemy(EnemyType type);
 		void spawnTower(TowerType type, const sf::Vector2f& pos);

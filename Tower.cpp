@@ -5,7 +5,7 @@ namespace GameObjects
 	std::unique_ptr<Tower> TowerFactory::createTower(const TowerType& type, const sf::Vector2f& position)
 	{
 		try {
-			if (type == TowerType::FAST) return std::make_unique<Fast>(100, 20000, 2.0f, 3.0f, "880000", position);
+			if (type == TowerType::FAST) return std::make_unique<Fast>(100, 10, 0.25f, 3.0f, "880000", position);
 			if (type == TowerType::SPLASH) return std::make_unique<Splash>(200, 50000, 0.75f, 2.5f, "008800", position);
 			if (type == TowerType::STREAM) return std::make_unique<Stream>(150, 2000, 0.05f, 4.0f, "000088", position);
 
@@ -63,6 +63,13 @@ namespace GameObjects
 
 					(*tower).scanEnemies(bestTarget, deltaTime, tower->rateOfFire, tower->damagePerBullet);
 
+					if (bestTarget->hitDecal) {
+						bestTarget->hitDecal->render(
+							GameToWindowCoords(enemyPos, WINDOW_HEIGHT),
+							tower->rotation
+						);
+					}
+
 					if (elapsedTime - lastPrintTime >= printInterval)
 					{
 						try {
@@ -79,6 +86,20 @@ namespace GameObjects
 							throw Exceptions::TowernatorException("Failed to print tower data: " + std::string(e.what()));
 						}
 					}
+				}
+
+				try {
+					if (tower->shootDecal) {
+						tower->shootDecal->update(deltaTime);
+						tower->shootDecalElapsed += deltaTime;
+						if (tower->shootDecal->currentFrame >= tower->shootDecal->frames.size() || tower->shootDecalElapsed >= decalTime) {
+							tower->shootDecal.reset();
+							tower->shootDecalElapsed = 0.0f;
+						}
+					}
+				}
+				catch (const Exceptions::TowernatorException& e) {
+					throw Exceptions::TowernatorException("Failed to update shoot decal: " + std::string(e.what()));
 				}
 			}
 		}
@@ -112,6 +133,12 @@ namespace GameObjects
 						std::to_string(tower->position.x) + ", " + std::to_string(tower->position.y) +
 						"): " + e.what());
 				}
+				if (tower->shootDecal) {
+					tower->shootDecal->render(
+						GameToWindowCoords(tower->position, WINDOW_HEIGHT),
+						tower->rotation
+					);
+				}
 			}
 		}
 		catch (const Exceptions::TowernatorException& e) {
@@ -130,9 +157,15 @@ namespace GameObjects
 			cooldown = rateOfFire;
 			target->health -= damage;
 
-			std::cout << "Shot fired, remaining enemy health: " << target->health << "\n";
+			shootDecal.emplace();
+			shootDecal->load("Saules_sprites/Enemies/robot_enemy1");
+			shootDecalElapsed = 0.0f;
 
-			//todo: render animations of shooting and hit
+			target->hitDecal.emplace();
+			target->hitDecal->load("Saules_sprites/Enemies/robot_enemy1");
+			target->hitDecalElapsed = 0.0f;
+
+			std::cout << "Shot fired, remaining enemy health: " << target->health << "\n";
 		}
 	}
 }

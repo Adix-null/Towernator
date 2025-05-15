@@ -22,7 +22,7 @@ namespace GameObjects
 
 		// Wave 2
 		waves[1].push_back({ 3, EnemyType::TANK, 2.0f, 5 });
-		waves[1].push_back({ 5, EnemyType::WALKER, 0.4f, 5 });
+		//waves[1].push_back({ 5, EnemyType::WALKER, 0.4f, 5 });
 
 		// Wave 3
 		//waves[2].push_back({ 1, EnemyType::BOSS, 3.0f, 10 });
