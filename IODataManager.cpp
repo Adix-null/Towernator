@@ -17,11 +17,11 @@ namespace GameObjects
 		waves.resize(3);
 
 		// Wave 1
-		waves[0].push_back({ 5, EnemyType::RUNNER, 0.66f, 0 });
+		waves[0].push_back({ 10, EnemyType::RUNNER, 0.66f, 0 });
 		waves[0].push_back({ 5, EnemyType::WALKER, 1.0f, 3 });
 
 		// Wave 2
-		waves[1].push_back({ 3, EnemyType::TANK, 2.0f, 5 });
+		waves[1].push_back({ 7, EnemyType::TANK, 2.0f, 5 });
 		waves[1].push_back({ 5, EnemyType::WALKER, 0.4f, 5 });
 
 		// Wave 3
@@ -57,9 +57,10 @@ namespace GameObjects
 
 	void Game::placeTestTower()
 	{
-		sf::Vector2f pos(3.0f, 5.0f);
-		spawnTower(TowerType::FAST, pos);
-		std::cout << "Placed FAST tower at (" << pos.x << ", " << pos.y << ")\n";
+		spawnTower(TowerType::FAST, sf::Vector2f(3.0f, 5.0f));
+		spawnTower(TowerType::STREAM, sf::Vector2f(14.0f, 3.0f));
+		spawnTower(TowerType::SPLASH, sf::Vector2f(8.0f, 3.0f));
+		//std::cout << "Placed FAST tower at (" << pos.x << ", " << pos.y << ")\n";
 	}
 
 	//difficulty will be handled later

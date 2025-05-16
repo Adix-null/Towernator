@@ -5,9 +5,9 @@ namespace GameObjects
 	std::unique_ptr<Tower> TowerFactory::createTower(const TowerType& type, const sf::Vector2f& position)
 	{
 		try {
-			if (type == TowerType::FAST) return std::make_unique<Fast>(100, 20, 2.0f, 3.0f, "880000", position);
-			if (type == TowerType::SPLASH) return std::make_unique<Splash>(200, 50, 0.75f, 2.5f, "008800", position);
-			if (type == TowerType::STREAM) return std::make_unique<Stream>(150, 2, 0.05f, 4.0f, "000088", position);
+			if (type == TowerType::FAST) return std::make_unique<Fast>(100, 10, 0.25f, 3.0f, "Saules_sprites/Towers/fast_tower.gif", position);
+			if (type == TowerType::SPLASH) return std::make_unique<Splash>(200, 50, 0.75f, 2.5f, "Saules_sprites/Towers/splash_tower.gif", position);
+			if (type == TowerType::STREAM) return std::make_unique<Stream>(150, 2, 0.05f, 4.0f, "Saules_sprites/Towers/damage_tower.gif", position);
 
 			throw Exceptions::TowernatorException("Unknown tower type passed to createTower()");
 		}
@@ -61,6 +61,15 @@ namespace GameObjects
 
 					tower->rotation = angleDegrees - 90.0f;
 
+					(*tower).scanEnemies(bestTarget, deltaTime, tower->rateOfFire, tower->damagePerBullet);
+
+					if (bestTarget->hitDecal) {
+						bestTarget->hitDecal->render(
+							GameToWindowCoords(enemyPos, WINDOW_HEIGHT),
+							0.0f
+						);
+					}
+
 					if (elapsedTime - lastPrintTime >= printInterval)
 					{
 						try {
@@ -78,6 +87,20 @@ namespace GameObjects
 						}
 					}
 				}
+
+				try {
+					if (tower->shootDecal) {
+						tower->shootDecal->update(deltaTime);
+						tower->shootDecalElapsed += deltaTime;
+						if (tower->shootDecal->currentFrame >= tower->shootDecal->frames.size() || tower->shootDecalElapsed >= decalTime) {
+							tower->shootDecal.reset();
+							tower->shootDecalElapsed = 0.0f;
+						}
+					}
+				}
+				catch (const Exceptions::TowernatorException& e) {
+					throw Exceptions::TowernatorException("Failed to update shoot decal: " + std::string(e.what()));
+				}
 			}
 		}
 		catch (const Exceptions::TowernatorException& e) {
@@ -88,20 +111,17 @@ namespace GameObjects
 		}
 	}
 
-
 	void Game::renderTowerData()
 	{
 		try {
-			const std::string textureKey = "Saules_sprites/Towers/fast_tower.gif";
-			if (textureCache.find(textureKey) == textureCache.end()) {
-				throw Exceptions::TowernatorException("Tower texture not found in cache: " + textureKey);
-			}
-
 			for (const auto& tower : towers)
 			{
 				try {
+					if (textureCache.find(tower->path) == textureCache.end()) {
+						throw Exceptions::TowernatorException("Tower texture not found in cache: " + tower->path);
+					}
 					renderImage(
-						textureCache.at(textureKey),
+						textureCache.at(tower->path),
 						GameToWindowCoords(tower->position, WINDOW_HEIGHT),
 						tower->rotation
 					);
@@ -111,6 +131,12 @@ namespace GameObjects
 						std::to_string(tower->position.x) + ", " + std::to_string(tower->position.y) +
 						"): " + e.what());
 				}
+				if (tower->shootDecal) {
+					tower->shootDecal->render(
+						GameToWindowCoords(tower->position, WINDOW_HEIGHT),
+						tower->rotation
+					);
+				}
 			}
 		}
 		catch (const Exceptions::TowernatorException& e) {
@@ -118,6 +144,29 @@ namespace GameObjects
 		}
 		catch (const std::exception& e) {
 			std::cerr << "Unexpected error in renderTowerData: " << e.what() << "\n";
+		}
+	}
+
+	void Tower::scanEnemies(Enemy* target, float deltatime, float rateOfFire, float damage)
+	{
+		cooldown = std::max(cooldown - deltatime, 0.0f);
+		if (cooldown == 0 && target)
+		{
+			cooldown = rateOfFire;
+			target->health -= damage;
+
+			shootDecalElapsed = 0.0f;
+			target->hitDecalElapsed = 0.0f;
+			if (!shootDecal)
+			{
+				shootDecal.emplace();
+				shootDecal->load("Saules_sprites/Enemies/robot_enemy1");
+
+				target->hitDecal.emplace();
+				target->hitDecal->load("Saules_sprites/Enemies/robot_enemy1");
+			}
+
+			std::cout << "Shot fired, remaining enemy health: " << target->health << "\n";
 		}
 	}
 }

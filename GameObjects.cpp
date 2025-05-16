@@ -17,6 +17,8 @@ namespace GameObjects
 			loadTextureIntoBuffer("Saules_sprites/Maps/map1_gp_complete.gif");
 			loadTextureIntoBuffer("Saules_sprites/Enemies/robot_enemy1.gif");
 			loadTextureIntoBuffer("Saules_sprites/Towers/fast_tower.gif");
+			loadTextureIntoBuffer("Saules_sprites/Towers/damage_tower.gif");
+			loadTextureIntoBuffer("Saules_sprites/Towers/splash_tower.gif");
 
 			state = GameState::ROUND_INIT;
 
@@ -46,10 +48,10 @@ namespace GameObjects
 			renderTowerData();
 
 			for (auto& anim : animators) {
-				anim.update(deltaTime);  
+				anim.update(deltaTime);
 			}
 
-			if (spawnQueue.empty()) {
+			if (spawnQueue.empty() && roundNumber <= waves.size()) {
 				state = GameState::ROUND_INIT;
 			}
 
@@ -58,7 +60,7 @@ namespace GameObjects
 			}
 
 			if (state == GameState::ROUND_INIT) {
-				if (roundNumber <= 0 || roundNumber > waves.size() + 1) {
+				if (roundNumber <= 0 || roundNumber > waves.size()) {
 					throw Exceptions::TowernatorException("Invalid round number: " + std::to_string(roundNumber));
 				}
 
@@ -87,6 +89,6 @@ namespace GameObjects
 
 	void Game::end()
 	{
-		std::cout << "Game over! Score: " << score << "\n";
+		std::cout << "Game over! Rounds survived: " << roundNumber << "\n";
 	}
 }
