@@ -34,18 +34,6 @@ namespace GameObjects
 			auto& enemy = **it;
 			enemy.progressInPath += enemy.speed * deltaTime;
 
-			if (enemy.health != 0)
-			{
-				if (enemy.hitDecal) {
-					enemy.hitDecal->update(deltaTime);
-					enemy.hitDecalElapsed += deltaTime;
-					if (enemy.hitDecal->currentFrame >= enemy.hitDecal->frames.size() || enemy.hitDecalElapsed >= decalTime) {
-						enemy.hitDecal.reset();
-						enemy.hitDecalElapsed = 0.0f;
-					}
-				}
-			}
-
 			if (enemy.progressInPath >= 1.0f)
 			{
 				centralFactoryHealth -= enemy.damage;
@@ -76,6 +64,15 @@ namespace GameObjects
 			auto& enemy = **it;
 			auto transformationResult = GameObjects::interpolatePath(pathPoints, enemy.progressInPath);
 			animators[0].render(GameToWindowCoords(transformationResult.first, WINDOW_HEIGHT), transformationResult.second);
+
+			if (enemy.hitDecal) {
+				enemy.hitDecal->update(deltaTime);
+				enemy.hitDecalElapsed += deltaTime;
+				if (enemy.hitDecal->currentFrame >= enemy.hitDecal->frames.size() || enemy.hitDecalElapsed >= decalTime) {
+					enemy.hitDecal.reset();
+					enemy.hitDecalElapsed = 0.0f;
+				}
+			}
 		}
 	}
 }

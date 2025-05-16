@@ -25,8 +25,8 @@ namespace GameObjects
 	enum class Difficulty { HARD, MEDIUM, EASY, INFINITE };
 	enum class GameState { MENU, PAUSE, ROUND_INIT, ROUND_ACTION, GAME_OVER };
 
-	constexpr int WINDOW_WIDTH = 2220 / 2;
-	constexpr int WINDOW_HEIGHT = 1080 / 2;
+	constexpr int WINDOW_WIDTH = 2220 / 1;
+	constexpr int WINDOW_HEIGHT = 1080 / 1;
 
 	struct WaveEnemyData
 	{

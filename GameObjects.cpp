@@ -19,6 +19,8 @@ namespace GameObjects
 			loadTextureIntoBuffer("Saules_sprites/Towers/fast_tower.gif");
 			loadTextureIntoBuffer("Saules_sprites/Towers/damage_tower.gif");
 			loadTextureIntoBuffer("Saules_sprites/Towers/splash_tower.gif");
+			loadTextureIntoBuffer("Saules_sprites/Towers/fast_tower_shot.gif");
+			loadTextureIntoBuffer("Saules_sprites/Enemies/robot_enemy_blow.gif");
 
 			state = GameState::ROUND_INIT;
 
@@ -43,8 +45,8 @@ namespace GameObjects
 			renderBackground(textureCache.at("Saules_sprites/Maps/map1_gp_complete.gif"));
 
 			processEnemyData();
-			processTowerData();
 			renderEnemyData();
+			processTowerData();
 			renderTowerData();
 
 			for (auto& anim : animators) {
