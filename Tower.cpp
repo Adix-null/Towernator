@@ -155,13 +155,16 @@ namespace GameObjects
 			cooldown = rateOfFire;
 			target->health -= damage;
 
-			shootDecal.emplace();
-			shootDecal->load("Saules_sprites/Enemies/robot_enemy1");
 			shootDecalElapsed = 0.0f;
-
-			target->hitDecal.emplace();
-			target->hitDecal->load("Saules_sprites/Enemies/robot_enemy1");
 			target->hitDecalElapsed = 0.0f;
+			if (!shootDecal)
+			{
+				shootDecal.emplace();
+				shootDecal->load("Saules_sprites/Enemies/robot_enemy1");
+
+				target->hitDecal.emplace();
+				target->hitDecal->load("Saules_sprites/Enemies/robot_enemy1");
+			}
 
 			std::cout << "Shot fired, remaining enemy health: " << target->health << "\n";
 		}
