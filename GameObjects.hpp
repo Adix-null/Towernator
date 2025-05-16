@@ -57,6 +57,7 @@ namespace GameObjects
 		std::unordered_map<std::string, sf::Texture> sharedTextureCache;
 		std::size_t currentFrame = 0;
 		float elapsed = 0.0f;
+		float speed = 1.0f;
 	};
 
 	class Enemy
@@ -97,7 +98,7 @@ namespace GameObjects
 		int damagePerBullet;
 		float rateOfFire;
 		float range;
-		std::string color;
+		std::string path;
 		sf::Vector2f position;
 		float rotation = 0.0f;
 		float cooldown = 0.0f;
@@ -107,7 +108,7 @@ namespace GameObjects
 
 		//Constructor
 		Tower(int prc, int dmg, float rof, float rng, const std::string& c, const sf::Vector2f& pos)
-			: price(prc), damagePerBullet(dmg), rateOfFire(rof), range(rng), color(c), rotation(0.0f), position(pos) {
+			: price(prc), damagePerBullet(dmg), rateOfFire(rof), range(rng), path(c), rotation(0.0f), position(pos) {
 		}
 		virtual ~Tower() = default;
 
@@ -186,8 +187,6 @@ namespace GameObjects
 
 		std::vector<GifAnimator> animators;
 	};
-
-
 
 	sf::Vector2f lerp(const sf::Vector2f& start, const sf::Vector2f& end, float t);
 	float dist(const sf::Vector2f& a, const sf::Vector2f& b);

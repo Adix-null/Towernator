@@ -55,7 +55,7 @@ namespace GameObjects
 		try {
 			if (frames.empty()) return;
 
-			elapsed += deltaTime;
+			elapsed += deltaTime * speed;
 			if (elapsed >= frames[currentFrame].delay)
 			{
 				elapsed = 0.0f;

@@ -5,9 +5,9 @@ namespace GameObjects
 	std::unique_ptr<Tower> TowerFactory::createTower(const TowerType& type, const sf::Vector2f& position)
 	{
 		try {
-			if (type == TowerType::FAST) return std::make_unique<Fast>(100, 10, 0.25f, 3.0f, "880000", position);
-			if (type == TowerType::SPLASH) return std::make_unique<Splash>(200, 50000, 0.75f, 2.5f, "008800", position);
-			if (type == TowerType::STREAM) return std::make_unique<Stream>(150, 2000, 0.05f, 4.0f, "000088", position);
+			if (type == TowerType::FAST) return std::make_unique<Fast>(100, 10, 0.25f, 3.0f, "Saules_sprites/Towers/fast_tower.gif", position);
+			if (type == TowerType::SPLASH) return std::make_unique<Splash>(200, 50, 0.75f, 2.5f, "Saules_sprites/Towers/splash_tower.gif", position);
+			if (type == TowerType::STREAM) return std::make_unique<Stream>(150, 2, 0.05f, 4.0f, "Saules_sprites/Towers/damage_tower.gif", position);
 
 			throw Exceptions::TowernatorException("Unknown tower type passed to createTower()");
 		}
@@ -66,7 +66,7 @@ namespace GameObjects
 					if (bestTarget->hitDecal) {
 						bestTarget->hitDecal->render(
 							GameToWindowCoords(enemyPos, WINDOW_HEIGHT),
-							tower->rotation
+							0.0f
 						);
 					}
 
@@ -114,16 +114,14 @@ namespace GameObjects
 	void Game::renderTowerData()
 	{
 		try {
-			const std::string textureKey = "Saules_sprites/Towers/fast_tower.gif";
-			if (textureCache.find(textureKey) == textureCache.end()) {
-				throw Exceptions::TowernatorException("Tower texture not found in cache: " + textureKey);
-			}
-
 			for (const auto& tower : towers)
 			{
 				try {
+					if (textureCache.find(tower->path) == textureCache.end()) {
+						throw Exceptions::TowernatorException("Tower texture not found in cache: " + tower->path);
+					}
 					renderImage(
-						textureCache.at(textureKey),
+						textureCache.at(tower->path),
 						GameToWindowCoords(tower->position, WINDOW_HEIGHT),
 						tower->rotation
 					);

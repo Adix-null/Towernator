@@ -17,6 +17,8 @@ namespace GameObjects
 			loadTextureIntoBuffer("Saules_sprites/Maps/map1_gp_complete.gif");
 			loadTextureIntoBuffer("Saules_sprites/Enemies/robot_enemy1.gif");
 			loadTextureIntoBuffer("Saules_sprites/Towers/fast_tower.gif");
+			loadTextureIntoBuffer("Saules_sprites/Towers/damage_tower.gif");
+			loadTextureIntoBuffer("Saules_sprites/Towers/splash_tower.gif");
 
 			state = GameState::ROUND_INIT;
 
