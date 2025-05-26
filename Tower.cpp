@@ -74,7 +74,7 @@ namespace GameObjects
 					{
 						try {
 							std::cout << "Tower at (" << towerPos.x << ", " << towerPos.y << ") targeting enemy at ("
-								<< enemyPos.x << ", " << enemyPos.y << "), Rotation: " << angleDegrees << "°\n";
+								<< enemyPos.x << ", " << enemyPos.y << "), Rotation: " << angleDegrees << "deg\n";
 
 							std::cout << "Checking distance from tower at " << towerPos.x << ", " << towerPos.y
 								<< " to enemy at " << enemyPos.x << ", " << enemyPos.y
@@ -162,9 +162,9 @@ namespace GameObjects
 				shootDecal.emplace();
 				shootDecal->load("Saules_sprites/Towers/fast_tower_shot");
 
-				target->hitDecal.emplace();
-				target->hitDecal->load("Saules_sprites/Enemies/robot_enemy_blow");
 			}
+			target->hitDecal.emplace();
+			target->hitDecal->load("Saules_sprites/Enemies/robot_enemy_blow");
 
 			std::cout << "Shot fired, remaining enemy health: " << target->health << "\n";
 		}

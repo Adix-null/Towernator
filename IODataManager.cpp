@@ -25,8 +25,8 @@ namespace GameObjects
 		waves[1].push_back({ 5, EnemyType::WALKER, 0.4f, 5 });
 
 		// Wave 3
-		//waves[2].push_back({ 1, EnemyType::BOSS, 3.0f, 10 });
-		//waves[2].push_back({ 15, EnemyType::RUNNER, 0.3f, 10000 });
+		waves[2].push_back({ 1, EnemyType::BOSS, 3.0f, 10 });
+		waves[2].push_back({ 15, EnemyType::RUNNER, 0.3f, 10000 });
 
 		gold = 1000;
 		centralFactoryHealth = 1300;

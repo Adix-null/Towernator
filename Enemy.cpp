@@ -5,10 +5,11 @@ namespace GameObjects
 	std::unique_ptr<Enemy> EnemyFactory::createEnemy(const EnemyType& type)
 	{
 		try {
+			//Enemy(int hlt, int dmg, float spd, int rew, const std::string & path)
 			if (type == EnemyType::RUNNER) return std::make_unique<Runner>(50, 30, 0.15f, 40, std::string("ff0000"));
-			if (type == EnemyType::WALKER) return std::make_unique<Walker>(50, 30, 0.05f, 40, std::string("not implmented"));
-			if (type == EnemyType::TANK) return std::make_unique<Tank>(50, 30, 0.03f, 10, std::string("0000ff"));
-			if (type == EnemyType::BOSS) return std::make_unique<Boss>(50, 30, 0.02f, 50, std::string("000000"));
+			if (type == EnemyType::WALKER) return std::make_unique<Walker>(75, 30, 0.08f, 40, std::string("not implmented"));
+			if (type == EnemyType::TANK) return std::make_unique<Tank>(150, 30, 0.06f, 10, std::string("0000ff"));
+			if (type == EnemyType::BOSS) return std::make_unique<Boss>(300, 30, 0.03f, 50, std::string("000000"));
 
 			throw Exceptions::TowernatorException("Unknown enemy type passed to createEnemy()");
 		}
