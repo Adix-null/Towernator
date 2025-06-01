@@ -99,14 +99,16 @@ namespace GameObjects
 			healthRatio = std::clamp(healthRatio, 0.0f, 1.0f);
 
 			sf::RectangleShape bgBar({ barWidth, barHeight });
-			bgBar.setFillColor(sf::Color(255, 0, 0));
+			bgBar.setFillColor(sf::Color(255, 255, 255));
 			bgBar.setPosition({ screenPos.x - barWidth / 2.f, screenPos.y - verticalOffset });
 
 			sf::RectangleShape fgBar({ barWidth * healthRatio, barHeight });
-			fgBar.setFillColor(sf::Color(0, 255, 0));
+			fgBar.setFillColor(sf::Color(255, 0, 0));
+			fgBar.setOutlineColor(sf::Color::White);
+			fgBar.setOutlineThickness(4.0f);
 			fgBar.setPosition({ screenPos.x - barWidth / 2.f, screenPos.y - verticalOffset });
 
-			window->draw(bgBar);
+			//window->draw(bgBar);
 			window->draw(fgBar);
 		}
 	}
