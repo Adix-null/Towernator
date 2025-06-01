@@ -4,7 +4,14 @@ namespace GameObjects
 {
 	void Game::togglePause(bool gamePaused)
 	{
-		// Implementation to be added
+		paused = gamePaused;
+
+		if (paused) {
+			std::cout << "Game paused.\n";
+		}
+		else {
+			std::cout << "Game resumed.\n";
+		}
 	}
 
 	void Game::initialize()
@@ -36,6 +43,17 @@ namespace GameObjects
 
 	void Game::update()
 	{
+		if (paused) {
+			/*if (textureCache.find("Saules_sprites/Maps/PauseScreen_placeholder.gif") == textureCache.end()) {
+				throw Exceptions::TowernatorException("Required texture not found in cache");
+			}
+
+			renderBackground(textureCache.at("Saules_sprites/Maps/PauseScreen_placeholder.gif"));*/
+
+			// Skip updating game state if paused
+			return;
+		}
+
 		try {
 			// Only handle logic-related exceptions here
 			if (textureCache.find("Saules_sprites/Maps/map1_gp_complete.gif") == textureCache.end()) {
@@ -93,4 +111,118 @@ namespace GameObjects
 	{
 		std::cout << "Game over! Rounds survived: " << roundNumber << "\n";
 	}
+
+	void GameObjects::Game::saveGame(const std::string& filename) {
+		std::ofstream file(filename);
+		if (!file.is_open()) {
+			std::cerr << "Failed to open save file for writing.\n";
+			return;
+		}
+
+		file << "ROUND:" << roundNumber << "\n";
+		file << "GOLD:" << gold << "\n";
+		file << "HEALTH:" << centralFactoryHealth << "\n";
+		file << "SCORE:" << score << "\n\n";
+
+		for (const auto& tower : towers) {
+			std::string type;
+			if (tower->path.find("fast") != std::string::npos)
+				type = "FAST";
+			else if (tower->path.find("splash") != std::string::npos)
+				type = "SPLASH";
+			else
+				type = "STREAM";
+
+			file << "TOWER:" << type << " "
+				<< tower->position.x << " "
+				<< tower->position.y << " "
+				<< tower->rotation << "\n";
+		}
+
+		for (const auto& enemy : enemies) {
+			std::string type;
+			if (enemy->path.find("robot_enemy1") != std::string::npos)
+				type = "RUNNER";
+			else
+				type = "WALKER"; // fallback, add logic for others as needed
+
+			file << "ENEMY:" << type << " "
+				<< enemy->health << " "
+				<< enemy->progressInPath << "\n";
+		}
+		file.close();
+		std::cout << "Game saved to " << filename << "\n";
+	}
+
+	void GameObjects::Game::loadGame(const std::string& filename) {
+
+		towers.clear();
+		enemies.clear();
+		spawnQueue = std::queue<SpawnEvent>();
+
+		std::ifstream file(filename);
+		if (!file.is_open()) {
+			std::cerr << "Failed to open save file for reading.\n";
+			return;
+		}
+
+		std::string line;
+		towers.clear();
+		enemies.clear();
+
+		while (std::getline(file, line)) {
+			if (line.empty()) continue;
+
+			std::istringstream iss(line);
+			std::string label;
+			std::getline(iss, label, ':');
+
+			if (label == "ROUND") {
+				iss >> roundNumber;
+			}
+			else if (label == "GOLD") {
+				iss >> gold;
+			}
+			else if (label == "HEALTH") {
+				iss >> centralFactoryHealth;
+			}
+			else if (label == "SCORE") {
+				iss >> score;
+			}
+			else if (label == "TOWER") {
+				std::string typeStr;
+				float x, y, rotation;
+				iss >> typeStr >> x >> y >> rotation;
+
+				TowerType type = (typeStr == "FAST") ? TowerType::FAST :
+					(typeStr == "SPLASH") ? TowerType::SPLASH :
+					TowerType::STREAM;
+
+				auto tower = TowerFactory::createTower(type, sf::Vector2f(x, y));
+				tower->rotation = rotation;
+				towers.push_back(std::move(tower));
+			}
+			else if (label == "ENEMY") {
+				std::string typeStr;
+				int health;
+				float progress;
+				iss >> typeStr >> health >> progress;
+
+				EnemyType type = (typeStr == "RUNNER") ? EnemyType::RUNNER :
+					(typeStr == "WALKER") ? EnemyType::WALKER :
+					(typeStr == "TANK") ? EnemyType::TANK : EnemyType::BOSS;
+
+				auto enemy = EnemyFactory::createEnemy(type);
+				enemy->health = health;
+				enemy->progressInPath = progress;
+				enemies.push_back(std::move(enemy));
+			}
+		}
+		file.close();
+		std::cout << "Game loaded from " << filename << "\n";
+
+		state = GameState::ROUND_ACTION;
+	}
+
+
 }

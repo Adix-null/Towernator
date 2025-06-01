@@ -12,6 +12,8 @@
 #include <unordered_map>
 #include <queue>
 #include <iostream>
+#include <fstream>  
+#include <sstream>      
 #include <functional>
 #include <math.h>
 #include <SFML/Graphics.hpp>
@@ -63,7 +65,8 @@ namespace GameObjects
 	class Enemy
 	{
 	public:
-		int health;				//enemy starting health
+		int health;				// current health
+		int maxHealth;			// max health
 		int damage;				//damage to central factory
 		float speed;			//path progress every made every second, 0-1
 		int reward;				//reward in coins for a kill
@@ -75,7 +78,7 @@ namespace GameObjects
 
 		//Constructor
 		Enemy(int hlt, int dmg, float spd, int rew, const std::string& path)
-			: health(hlt), damage(dmg), speed(spd), reward(rew), path(path), progressInPath(0) {
+			: health(hlt), maxHealth(hlt), damage(dmg), speed(spd), reward(rew), path(path), progressInPath(0) {
 		}
 		virtual ~Enemy() = default;
 	};
@@ -164,6 +167,8 @@ namespace GameObjects
 		float textureScale = 1;
 		float decalTime = 0.33f;
 
+		bool paused = false;
+
 		void spawnEnemy(EnemyType type);
 		void spawnTower(TowerType type, const sf::Vector2f& pos);
 
@@ -171,6 +176,9 @@ namespace GameObjects
 		void initialize(/*GameObjects::Difficulty dif*/);
 		void update();
 		void end();
+
+		void saveGame(const std::string& filename);
+		void loadGame(const std::string& filename);
 
 		void loadWaveDataFromFile();
 		void loadRoundWaveData(int waveNum);
@@ -180,6 +188,7 @@ namespace GameObjects
 
 		void renderEnemyData();
 		void renderTowerData();
+		void renderEnemyHealthBars();
 		void renderBackground(sf::Texture texture);
 		void loadTextureIntoBuffer(const std::filesystem::path& filename);
 		void renderImage(sf::Texture texture, std::optional<sf::Vector2f> pos, std::optional<float> rot);

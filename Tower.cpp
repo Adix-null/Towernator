@@ -161,7 +161,6 @@ namespace GameObjects
 			{
 				shootDecal.emplace();
 				shootDecal->load("Saules_sprites/Towers/fast_tower_shot");
-
 			}
 			target->hitDecal.emplace();
 			target->hitDecal->load("Saules_sprites/Enemies/robot_enemy_blow");

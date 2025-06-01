@@ -75,5 +75,44 @@ namespace GameObjects
 				}
 			}
 		}
+
+		renderEnemyHealthBars();
 	}
+
+	void GameObjects::Game::renderEnemyHealthBars()
+	{
+		if (!window)
+			throw Exceptions::TowernatorException("Window pointer not initialized");
+
+		for (const auto& enemyPtr : enemies)
+		{
+			const Enemy& enemy = *enemyPtr;
+
+			auto [gamePos, angle] = interpolatePath(pathPoints, enemy.progressInPath);
+			sf::Vector2f screenPos = GameToWindowCoords(gamePos, WINDOW_HEIGHT);
+
+			const float barWidth = 80.0f;
+			const float barHeight = 10.0f;
+			const float verticalOffset = 75.0f;
+
+			float healthRatio = static_cast<float>(enemy.health) / std::max(1, enemy.maxHealth);
+			healthRatio = std::clamp(healthRatio, 0.0f, 1.0f);
+
+			sf::RectangleShape bgBar({ barWidth, barHeight });
+			bgBar.setFillColor(sf::Color(255, 255, 255));
+			bgBar.setPosition({ screenPos.x - barWidth / 2.f, screenPos.y - verticalOffset });
+
+			sf::RectangleShape fgBar({ barWidth * healthRatio, barHeight });
+			fgBar.setFillColor(sf::Color(255, 0, 0));
+			fgBar.setOutlineColor(sf::Color::White);
+			fgBar.setOutlineThickness(4.0f);
+			fgBar.setPosition({ screenPos.x - barWidth / 2.f, screenPos.y - verticalOffset });
+
+			//window->draw(bgBar);
+			window->draw(fgBar);
+		}
+	}
+
+
+
 }

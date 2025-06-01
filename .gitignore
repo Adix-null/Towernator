@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+# Save file
+savefile.txt
+
 # User-specific files
 *.rsuser
 *.suo
@@ -399,3 +402,4 @@ FodyWeavers.xsd
 /Towernator/
 /x64/Debug/Towernator.exe
 /x64/Release/Towernator.exe
+/Towernator/x64/Debug/Towernator.exe.recipe
