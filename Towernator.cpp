@@ -88,6 +88,23 @@ int main()
 			hardButtonClicked = false;
 		}
 		ImGui::Text("Start game with hard difficulty (good luck)");
+
+		if (ImGui::Button(game.paused ? "Resume" : "Pause"))
+		{
+			game.togglePause(!game.paused);
+		}
+
+		if (ImGui::Button("Save Game"))
+		{
+			game.saveGame("savefile.txt");  // or any path you want
+			std::cout << "Game saved.\n";
+		}
+
+		if (ImGui::Button("Load Game"))
+		{
+			game.loadGame("savefile.txt");
+			std::cout << "Game loaded.\n";
+		}
 		ImGui::End();
 
 		//main loop will go here
