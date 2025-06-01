@@ -63,7 +63,8 @@ namespace GameObjects
 	class Enemy
 	{
 	public:
-		int health;				//enemy starting health
+		int health;				// current health
+		int maxHealth;			// max health
 		int damage;				//damage to central factory
 		float speed;			//path progress every made every second, 0-1
 		int reward;				//reward in coins for a kill
@@ -75,7 +76,7 @@ namespace GameObjects
 
 		//Constructor
 		Enemy(int hlt, int dmg, float spd, int rew, const std::string& path)
-			: health(hlt), damage(dmg), speed(spd), reward(rew), path(path), progressInPath(0) {
+			: health(hlt), maxHealth(hlt), damage(dmg), speed(spd), reward(rew), path(path), progressInPath(0) {
 		}
 		virtual ~Enemy() = default;
 	};
@@ -180,6 +181,7 @@ namespace GameObjects
 
 		void renderEnemyData();
 		void renderTowerData();
+		void renderEnemyHealthBars();
 		void renderBackground(sf::Texture texture);
 		void loadTextureIntoBuffer(const std::filesystem::path& filename);
 		void renderImage(sf::Texture texture, std::optional<sf::Vector2f> pos, std::optional<float> rot);
