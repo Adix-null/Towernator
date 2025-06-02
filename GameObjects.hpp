@@ -172,7 +172,7 @@ namespace GameObjects
 		void update();
 		void end();
 
-		void loadWaveDataFromFile();
+		void loadWaveDataFromFile(Difficulty dif);
 		void loadRoundWaveData(int waveNum);
 		void placeTestTower();
 		void processEnemyData();

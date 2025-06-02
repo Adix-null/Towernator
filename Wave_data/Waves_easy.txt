@@ -1,0 +1,32 @@
+# Easy mode wave data
+# Lines starting with # are comments
+
+[GAME_SETTINGS]
+waveCount 3
+gold 1000
+centralFactoryHealth 1300
+startRoundDelay 0
+
+[PATH]
+# Format: x y
+16 2
+2 2
+2 8
+15 8
+15 4
+4 4
+4 6
+12 6
+
+[WAVE1]
+# Format: count enemyType spawnDelay healthBoost
+10 RUNNER 0.66 0
+5 WALKER 1.0 3
+
+[WAVE2]
+7 TANK 2.0 5
+5 WALKER 0.4 5
+
+[WAVE3]
+1 BOSS 3.0 10
+15 RUNNER 0.3 10000

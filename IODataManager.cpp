@@ -1,37 +1,149 @@
 #include "GameObjects.hpp"
-
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <iostream>
 namespace GameObjects
 {
-	//info hardcoded for now
-	void Game::loadWaveDataFromFile()
-	{
-		pathPoints.push_back({ 16, 2 }); //start
-		pathPoints.push_back({ 2, 2 });
-		pathPoints.push_back({ 2, 8 });
-		pathPoints.push_back({ 15, 8 });
-		pathPoints.push_back({ 15, 4 });
-		pathPoints.push_back({ 4, 4 });
-		pathPoints.push_back({ 4, 6 });
-		pathPoints.push_back({ 12, 6 }); //end
+    void Game::loadWaveDataFromFile(Difficulty dif = Difficulty::EASY)
+    {
+        std::ifstream file("Wave_data/Waves_easy.txt"); //placeholder until UI is fixed
+        if (!file.is_open()) {
+            throw Exceptions::TowernatorException("Could not open wave_data.txt file");
+        }
 
-		waves.resize(3);
+        std::string line;
+        std::string section = "";
+        std::string currentDifficulty = "";
 
-		// Wave 1
-		waves[0].push_back({ 10, EnemyType::RUNNER, 0.66f, 0 });
-		waves[0].push_back({ 5, EnemyType::WALKER, 1.0f, 3 });
+        // Convert difficulty enum to string for comparison
+        std::string targetDifficulty;
+        switch (dif) {
+        case Difficulty::EASY: targetDifficulty = "EASY"; break;
+        case Difficulty::MEDIUM: targetDifficulty = "MEDIUM"; break;
+        case Difficulty::HARD: targetDifficulty = "HARD"; break;
+        case Difficulty::INFINITE: targetDifficulty = "INFINITE"; break;
+        }
 
-		// Wave 2
-		waves[1].push_back({ 7, EnemyType::TANK, 2.0f, 5 });
-		waves[1].push_back({ 5, EnemyType::WALKER, 0.4f, 5 });
+        while (std::getline(file, line)) {
+            // Skip comments / empty lines
+            if (line.empty() || line[0] == '#') {
+                continue;
+            }
 
-		// Wave 3
-		waves[2].push_back({ 1, EnemyType::BOSS, 3.0f, 10 });
-		waves[2].push_back({ 15, EnemyType::RUNNER, 0.3f, 10000 });
+            if (line[0] == '[' && line.back() == ']') {
+                section = line.substr(1, line.length() - 2);
 
-		gold = 1000;
-		centralFactoryHealth = 1300;
-		startRoundDelay = 0;
-	}
+                if (section == "DIFFICULTY_EASY" || section == "DIFFICULTY_MEDIUM" ||
+                    section == "DIFFICULTY_HARD" || section == "DIFFICULTY_INFINITE") {
+                    currentDifficulty = section.substr(11);
+                }
+                else {
+                    currentDifficulty = "";
+                }
+                continue;
+            }
+
+            std::istringstream iss(line);
+
+            if (section == "PATH") {
+                int x, y;
+                if (iss >> x >> y) {
+                    pathPoints.push_back({ x, y });
+                }
+            }
+            else if (section == "GAME_SETTINGS" ||
+                (!currentDifficulty.empty() && currentDifficulty == targetDifficulty)) {
+                std::string key;
+                if (iss >> key) {
+                    if (key == "gold") {
+                        iss >> gold;
+                    }
+                    else if (key == "centralFactoryHealth") {
+                        iss >> centralFactoryHealth;
+                    }
+                    else if (key == "startRoundDelay") {
+                        iss >> startRoundDelay;
+                    }
+                    else if (key == "waveCount") {
+                        int waveCount;
+                        iss >> waveCount;
+                        waves.resize(waveCount);
+                    }
+                }
+            }
+            else if (section.substr(0, 4) == "WAVE") {
+                int waveIndex;
+                try {
+                    waveIndex = std::stoi(section.substr(4)) - 1;
+                }
+                catch (const std::invalid_argument&) {
+                    throw Exceptions::TowernatorException("Invalid wave section format: " + section);
+                }
+                catch (const std::out_of_range&) {
+                    throw Exceptions::TowernatorException("Wave number out of range: " + section);
+                }
+
+                if (waveIndex < 0 || waveIndex >= waves.size()) {
+                    throw Exceptions::TowernatorException("Wave index " + std::to_string(waveIndex + 1) +
+                        " is out of bounds. Expected 1-" + std::to_string(waves.size()));
+                }
+                int count;
+                std::string enemyTypeStr;
+                float spawnDelay;
+                int healthBoost;
+
+                if (!(iss >> count >> enemyTypeStr >> spawnDelay >> healthBoost)) {
+                    throw Exceptions::TowernatorException("Invalid wave data format in " + section +
+                        ". Expected: count enemyType spawnDelay healthBoost");
+                }
+
+                if (count <= 0) {
+                    throw Exceptions::TowernatorException("Enemy count must be positive in " + section);
+                }
+
+                if (spawnDelay < 0) {
+                    throw Exceptions::TowernatorException("Spawn delay cannot be negative in " + section);
+                }
+                EnemyType enemyType;
+                if (enemyTypeStr == "RUNNER") {
+                    enemyType = EnemyType::RUNNER;
+                }
+                else if (enemyTypeStr == "WALKER") {
+                    enemyType = EnemyType::WALKER;
+                }
+                else if (enemyTypeStr == "TANK") {
+                    enemyType = EnemyType::TANK;
+                }
+                else if (enemyTypeStr == "BOSS") {
+                    enemyType = EnemyType::BOSS;
+                }
+                else {
+                    throw Exceptions::TowernatorException("Unknown enemy type: " + enemyTypeStr);
+                }
+
+                waves[waveIndex].push_back({ count, enemyType, spawnDelay, healthBoost });
+            }
+        }
+
+        if (pathPoints.empty()) {
+            throw Exceptions::TowernatorException("No path points found in wave_data.txt");
+        }
+
+        bool hasWaveData = false;
+        for (const auto& wave : waves) {
+            if (!wave.empty()) {
+                hasWaveData = true;
+                break;
+            }
+        }
+
+        if (!hasWaveData) {
+            throw Exceptions::TowernatorException("No wave data found in wave_data.txt");
+        }
+
+        file.close();
+    }
 
 	void Game::loadRoundWaveData(int waveNum)
 	{
