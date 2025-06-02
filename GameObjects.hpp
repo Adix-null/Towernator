@@ -16,6 +16,10 @@
 #include <sstream>      
 #include <functional>
 #include <math.h>
+#include <cassert>
+#include <fstream>
+#include <sstream>
+#include <filesystem>
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Vector2.hpp>
 #include "Exceptions.cpp"
@@ -180,7 +184,7 @@ namespace GameObjects
 		void saveGame(const std::string& filename);
 		void loadGame(const std::string& filename);
 
-		void loadWaveDataFromFile();
+		void loadWaveDataFromFile(const std::string& filepath, Difficulty dif = Difficulty::EASY);
 		void loadRoundWaveData(int waveNum);
 		void placeTestTower();
 		void processEnemyData();

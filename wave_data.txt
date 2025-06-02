@@ -1,0 +1,44 @@
+[GAME_SETTINGS]
+waveCount 3
+
+[DIFFICULTY_EASY]
+gold 1000
+centralFactoryHealth 300
+startRoundDelay 10
+
+[DIFFICULTY_MEDIUM]
+gold 500
+centralFactoryHealth 200
+startRoundDelay 7
+
+[DIFFICULTY_HARD]
+gold 200
+centralFactoryHealth 150
+startRoundDelay 4
+
+[DIFFICULTY_INFINITE]
+gold 300
+centralFactoryHealth 300
+startRoundDelay 5
+
+[PATH]
+16 2
+2 2
+2 8
+15 8
+15 4
+4 4
+4 6
+12 6
+
+[WAVE1]
+10 RUNNER 0.66 0
+5 WALKER 1.0 3
+
+[WAVE2]
+7 TANK 2.0 5
+5 WALKER 0.4 5
+
+[WAVE3]
+1 BOSS 3.0 10
+15 RUNNER 0.3 10000
