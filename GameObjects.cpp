@@ -28,6 +28,7 @@ namespace GameObjects
 			loadTextureIntoBuffer("Saules_sprites/Towers/splash_tower.gif");
 			loadTextureIntoBuffer("Saules_sprites/Towers/fast_tower_shot.gif");
 			loadTextureIntoBuffer("Saules_sprites/Enemies/robot_enemy_blow.gif");
+			loadTextureIntoBuffer("Saules_sprites/Maps/PauseScreen.png");
 
 			state = GameState::ROUND_INIT;
 
@@ -44,11 +45,11 @@ namespace GameObjects
 	void Game::update()
 	{
 		if (paused) {
-			/*if (textureCache.find("Saules_sprites/Maps/PauseScreen_placeholder.gif") == textureCache.end()) {
+			if (textureCache.find("Saules_sprites/Maps/PauseScreen.png") == textureCache.end()) {
 				throw Exceptions::TowernatorException("Required texture not found in cache");
 			}
 
-			renderBackground(textureCache.at("Saules_sprites/Maps/PauseScreen_placeholder.gif"));*/
+			renderBackground(textureCache.at("Saules_sprites/Maps/PauseScreen.png"));
 
 			// Skip updating game state if paused
 			return;

@@ -69,8 +69,8 @@ namespace GameObjects
 	class Enemy
 	{
 	public:
-		int health;				// current health
-		int maxHealth;			// max health
+		int health;				//current health
+		int maxHealth;			//max health
 		int damage;				//damage to central factory
 		float speed;			//path progress every made every second, 0-1
 		int reward;				//reward in coins for a kill
@@ -177,7 +177,7 @@ namespace GameObjects
 		void spawnTower(TowerType type, const sf::Vector2f& pos);
 
 		void togglePause(bool gamePaused);
-		void initialize(/*GameObjects::Difficulty dif*/);
+		void initialize();
 		void update();
 		void end();
 

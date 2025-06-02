@@ -5,42 +5,9 @@
 #include "imgui.h"
 #include "imgui-SFML.h"
 
-
-
 int main()
 {
-	//sf::RenderWindow window2(sf::VideoMode(sf::Vector2u(GameObjects::WINDOW_WIDTH, GameObjects::WINDOW_HEIGHT)), "Towernator Demo", sf::Style::Titlebar | sf::Style::Close);
-	//while (window2.isOpen())
-	//{
-	//	const sf::Event UIevent();
-	//	while (const std::optional event = window2.pollEvent())
-	//	{
-	//		ImGui::SFML::ProcessEvent(window2, *event);
-	//		//Close window if X is clicked
-	//		if (event->is<sf::Event::Closed>())
-	//		{
-	//			window2.close();
-	//		}
-	//	}
-	//	window2.clear(sf::Color::Black);
 
-	//	float barWidth = 80.0f;
-	//	float barHeight = 10.0f;
-	//	float healthRatio = 0.5f; // test value
-
-	//	sf::RectangleShape bgBar({ barWidth, barHeight });
-	//	bgBar.setFillColor(sf::Color(255, 0, 0, 255));
-	//	bgBar.setPosition(sf::Vector2f(100, 100));
-
-	//	sf::RectangleShape fgBar({ barWidth * healthRatio, barHeight });
-	//	fgBar.setFillColor(sf::Color(255, 255, 255, 255));
-	//	fgBar.setPosition(sf::Vector2f(100, 100));
-
-	//	window2.draw(bgBar);
-	//	window2.draw(fgBar);
-
-	//	window2.display();
-	//}
 
 	//sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
 	sf::RenderWindow window(sf::VideoMode(sf::Vector2u(GameObjects::WINDOW_WIDTH, GameObjects::WINDOW_HEIGHT)), "Towernator Demo", sf::Style::Titlebar | sf::Style::Close);
@@ -83,8 +50,9 @@ int main()
 		bool mediumButtonClicked = false;
 		bool hardButtonClicked = false;
 
-		ImGui::Begin("Menu");
-
+		ImGui::Begin("Menu", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
+		ImGui::SetWindowFontScale(3.0f);
+		/*
 		if (ImGui::Button("EASY"))
 		{
 			std::cout << "The button has been clicked!\n"; //remove this later, used for debug
@@ -117,6 +85,7 @@ int main()
 			hardButtonClicked = false;
 		}
 		ImGui::Text("Start game with hard difficulty (good luck)");
+		*/
 
 		if (ImGui::Button(game.paused ? "Resume" : "Pause"))
 		{
@@ -143,7 +112,6 @@ int main()
 		{
 			break;
 		}
-
 		window.display();
 	}
 
