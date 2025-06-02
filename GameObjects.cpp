@@ -24,7 +24,7 @@ namespace GameObjects
 
 			state = GameState::ROUND_INIT;
 
-			loadWaveDataFromFile(Difficulty::EASY);
+			loadWaveDataFromFile("Wave_data/Waves", Difficulty::EASY);
 		}
 		catch (const std::exception& e) {
 			throw Exceptions::TowernatorException("Game initialization failed: " + std::string(e.what()));

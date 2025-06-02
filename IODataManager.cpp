@@ -1,13 +1,15 @@
 #include "GameObjects.hpp"
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <iostream>
 namespace GameObjects
 {
-    void Game::loadWaveDataFromFile(Difficulty dif = Difficulty::EASY)
+    void Game::loadWaveDataFromFile(const std::string& filepath, Difficulty dif)
     {
-        std::ifstream file("Wave_data/Waves_easy.txt"); //placeholder until UI is fixed
+        pathPoints.clear();
+        waves.clear();
+        gold = 0;
+        centralFactoryHealth = 0;
+        startRoundDelay = 0.0f;
+
+        std::ifstream file(filepath);
         if (!file.is_open()) {
             throw Exceptions::TowernatorException("Could not open wave_data.txt file");
         }

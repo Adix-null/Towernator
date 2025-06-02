@@ -1,0 +1,11 @@
+[GAME_SETTINGS]
+waveCount 1
+[DIFFICULTY_EASY]
+gold 1000
+centralFactoryHealth 300
+startRoundDelay 10
+[PATH]
+0 0
+10 10
+[WAVE1]
+5 INVALID_ENEMY 1.0 0
