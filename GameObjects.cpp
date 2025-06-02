@@ -29,7 +29,6 @@ namespace GameObjects
 			loadTextureIntoBuffer("Saules_sprites/Towers/fast_tower_shot.gif");
 			loadTextureIntoBuffer("Saules_sprites/Enemies/robot_enemy_blow.gif");
 			loadTextureIntoBuffer("Saules_sprites/Maps/PauseScreen.png");
-
 			state = GameState::ROUND_INIT;
 
 			loadWaveDataFromFile("Wave_data/Waves.txt", Difficulty::EASY);
