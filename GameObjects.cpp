@@ -139,19 +139,17 @@ namespace GameObjects
 				<< tower->rotation << "\n";
 		}
 
+		std::cout << "Saved towers\n";
+
 		for (const auto& enemy : enemies) {
-			std::string type;
-			if (enemy->path.find("robot_enemy1") != std::string::npos)
-				type = "RUNNER";
-			else
-				type = "WALKER"; // fallback, add logic for others as needed
+			std::string type = enemy->getType();
 
 			file << "ENEMY:" << type << " "
 				<< enemy->health << " "
 				<< enemy->progressInPath << "\n";
 		}
-		file.close();
 		std::cout << "Game saved to " << filename << "\n";
+		file.close();
 	}
 
 	void GameObjects::Game::loadGame(const std::string& filename) {
@@ -207,10 +205,12 @@ namespace GameObjects
 				int health;
 				float progress;
 				iss >> typeStr >> health >> progress;
+				std::cout << "Loading enemy of type: " << typeStr << "\n";
 
-				EnemyType type = (typeStr == "RUNNER") ? EnemyType::RUNNER :
-					(typeStr == "WALKER") ? EnemyType::WALKER :
-					(typeStr == "TANK") ? EnemyType::TANK : EnemyType::BOSS;
+				EnemyType type =
+					(typeStr.find("Runner") != std::string::npos) ? EnemyType::RUNNER :
+					(typeStr.find("Walker") != std::string::npos) ? EnemyType::WALKER :
+					(typeStr.find("Tank") != std::string::npos) ? EnemyType::TANK : EnemyType::BOSS;
 
 				auto enemy = EnemyFactory::createEnemy(type);
 				enemy->health = health;

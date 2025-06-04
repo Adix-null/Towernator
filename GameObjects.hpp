@@ -19,6 +19,7 @@
 #include <cassert>
 #include <fstream>
 #include <sstream>
+#include <typeinfo>
 #include <filesystem>
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -84,13 +85,14 @@ namespace GameObjects
 		Enemy(int hlt, int dmg, float spd, int rew, const std::string& path)
 			: health(hlt), maxHealth(hlt), damage(dmg), speed(spd), reward(rew), path(path), progressInPath(0) {
 		}
+		virtual std::string getType() const = 0;
 		virtual ~Enemy() = default;
 	};
 
-	class Runner : public Enemy { using Enemy::Enemy; };
-	class Walker : public Enemy { using Enemy::Enemy; };
-	class Tank : public Enemy { using Enemy::Enemy; };
-	class Boss : public Enemy { using Enemy::Enemy; };
+	class Runner : public Enemy { using Enemy::Enemy; public: std::string getType() const override { return "Runner"; } };
+	class Walker : public Enemy { using Enemy::Enemy;  public: std::string getType() const override { return "Walker"; } };
+	class Tank : public Enemy { using Enemy::Enemy;  public: std::string getType() const override { return "Tank"; } };
+	class Boss : public Enemy { using Enemy::Enemy;  public: std::string getType() const override { return "Boss"; } };
 
 	class EnemyFactory
 	{
