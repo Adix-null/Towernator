@@ -5,7 +5,7 @@
 waveCount 3
 gold 1000
 centralFactoryHealth 1300
-startRoundDelay 0
+startRoundDelay 2
 
 [PATH]
 # Format: x y

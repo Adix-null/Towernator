@@ -87,7 +87,7 @@ void testLoadWaveDataFromValidFile() {
         assert(game.pathPoints[0].x == 16 && game.pathPoints[0].y == 2);
 
         assert(game.gold == 1000);
-        std::cout << game.centralFactoryHealth;
+
         assert(game.centralFactoryHealth == 300);
         assert(game.startRoundDelay == 10);
 
@@ -139,7 +139,7 @@ void testLoadWaveDataFileNotFound() {
     }
     catch (const Exceptions::TowernatorException& e) {
         std::string errorMsg = e.what();
-        if (errorMsg.find("Could not open nonexistent_wave_data.txt") != std::string::npos) {
+        if (errorMsg.find("Could not open wave_data.txt file") != std::string::npos) {
             std::cout << "testLoadWaveDataFileNotFound passed\n";
         }
         else {
@@ -428,7 +428,8 @@ void cleanupTestEnvironment() {
     std::cout << "Cleaning up test environment...\n";
 
     std::remove("test_data/valid_texture.png");
-
+    std::remove("test_wave_data_invalid.txt");
+    std::remove("wave_data.txt");
     try {
         if (std::filesystem::exists("test_data")) {
             std::filesystem::remove_all("test_data");
